@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识点深度对话</title>
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_knowledge_point_chat.css') }}">
+</head>
+<body>
+    <div class="knowledge-point-chat-container">
+        <!-- 知识点信息卡片 -->
+        <div class="knowledge-point-card">
+            <div class="card-header">
+                <h2>🎯 知识点深度对话</h2>
+                <button class="close-btn" onclick="closeKnowledgePointChat()">×</button>
+            </div>
+            <div class="card-content">
+                <div class="knowledge-point-info">
+                    <div class="info-row">
+                        <span class="info-label">📚 知识点:</span>
+                        <span class="info-value" id="knowledge-point-title">加载中...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">⏰ 时间戳:</span>
+                        <span class="info-value" id="knowledge-point-timestamp">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">📹 视频:</span>
+                        <span class="info-value" id="video-title">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">🔗 相关概念:</span>
+                        <span class="info-value" id="related-concepts">-</span>
+                    </div>
+                </div>
+                <div class="knowledge-point-content" id="knowledge-point-content">
+                    <div class="content-text">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 对话区域 -->
+        <div class="chat-section">
+            <!-- 对话状态栏 -->
+            <div class="chat-status-bar">
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <span class="status-label">对话轮次:</span>
+                        <span class="status-value" id="dialogue-round">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">焦点状态:</span>
+                        <span class="status-value" id="focus-status">正常</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">理解进度:</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="understanding-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="resetDialogue()">🔄 重置对话</button>
+                    <button class="action-btn" onclick="backToFocus()">🎯 回到焦点</button>
+                </div>
+            </div>
+
+            <!-- 对话消息区域 -->
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="ai-avatar">🤖</span>
+                            <span class="message-time" id="welcome-time"></span>
+                        </div>
+                        <div class="message-text">
+                            欢迎来到知识点深度对话！我是你的专业学习助手。
+                            <br><br>我可以帮助你：
+                            <br>• 📖 深入理解这个知识点的核心概念
+                            <br>• 🔍 分析知识点的原理和应用
+                            <br>• 💡 提供相关的学习建议和思考问题
+                            <br>• 🎯 确保对话始终聚焦在这个知识点上
+                            <br><br>请随时向我提问，我会为你提供专业的解答！
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 建议问题区域 -->
+            <div class="suggested-questions" id="suggested-questions">
+                <div class="suggestions-header">
+                    <span>💡 建议问题</span>
+                    <button class="refresh-suggestions" onclick="refreshSuggestions()">🔄</button>
+                </div>
+                <div class="suggestions-list" id="suggestions-list">
+                    <div class="suggestion-item" onclick="askSuggestion('这个知识点的核心概念是什么？')">
+                        这个知识点的核心概念是什么？
+                    </div>
+                    <div class="suggestion-item" onclick="askSuggestion('这个知识点在实际中如何应用？')">
+                        这个知识点在实际中如何应用？
+                    </div>
+                    <div class="suggestion-item" onclick="askSuggestion('能给我一个具体的例子吗？')">
+                        能给我一个具体的例子吗？
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea 
+                        id="chat-input" 
+                        placeholder="输入你的问题，我会专注于这个知识点为你解答..." 
+                        rows="3"
+                        maxlength="500"
+                    ></textarea>
+                    <div class="input-actions">
+                        <span class="char-count" id="char-count">0/500</span>
+                        <button class="send-btn" onclick="sendMessage()" id="send-btn">
+                            <span class="send-text">发送</span>
+                            <span class="send-icon">📤</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>AI正在思考中...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script_knowledge_point_chat.js') }}"></script>
+</body>
+</html> 

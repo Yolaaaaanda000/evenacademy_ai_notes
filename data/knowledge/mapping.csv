@@ -1,0 +1,33 @@
+division_code,Division,topic_code,Topic
+a,Algebra,misa,Miscellaneous algebra
+a,Algebra,complex,Complex number and complex plane
+a,Algebra,trig,Trigonometry function
+a,Algebra,function,Special function and functional equation
+a,Algebra,log,Logarithm
+a,Algebra,exp,Exponent
+a,Algebra,equation,Inequality and equation
+a,Algebra,poly,Polynomial
+a,Algebra,seq,Sequence
+a,Algebra,stats,Statistics
+g,Geometry,circle,Circle
+g,Geometry,angle,Angle and trigonometry
+g,Geometry,coor,Coordinate geometry
+g,Geometry,length,Length
+g,Geometry,3d,3D geometry
+s,Number Theory,base,Base representation
+s,Number Theory,mod,Modular arithmetic
+s,Number Theory,factor,Factor
+s,Number Theory,div,Divisibility
+s,Number Theory,lcm,Least common multiple
+s,Number Theory,digit,Digit representation
+c,Counting,Markov,Probability states diagram(Markov chain)
+c,Counting,Recursion,Recursion
+c,Counting,logic,Logic
+c,Counting,uniform,Probability in uniform distribution
+c,Counting,geom,Geometric counting
+c,Counting,game,Winning strategy and other game problems
+c,Counting,Expectation,Expectation
+c,Counting,count,Counting
+c,Counting,prob,Probability
+g,Geometry,area,Area
+g,Geometry,sim,Similar Triangle

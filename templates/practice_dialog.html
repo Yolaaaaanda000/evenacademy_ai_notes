@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习对话框</title>
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_practice.css') }}">
+</head>
+<body>
+    <div id="practice-dialog" class="practice-dialog">
+        <div class="practice-dialog-content">
+            <div class="practice-dialog-header">
+                <h3>📚 练习: <span id="knowledge-point-title"></span></h3>
+                <button class="close-btn" onclick="closePracticeDialog()">×</button>
+            </div>
+            <div class="practice-dialog-body">
+                <div class="practice-left-panel">
+                    <div class="question-info">
+                        <div class="knowledge-point-info">
+                            <span class="info-label">知识点:</span>
+                            <span class="info-value" id="knowledge-point-value"></span>
+                        </div>
+                        <div class="difficulty-info">
+                            <span class="info-label">难度:</span>
+                            <span class="info-value" id="question-difficulty">-</span>
+                        </div>
+                        <div class="relevance-info">
+                            <span class="info-label">相关度:</span>
+                            <span class="info-value" id="question-relevance">-</span>
+                        </div>
+                    </div>
+                    <div class="question-content" id="question-content">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>正在加载题目...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="practice-right-panel">
+                    <div class="chat-header">
+                        <h4>💬 AI助手</h4>
+                        <button class="hint-btn" onclick="getPracticeHint()" id="hint-btn">💡 提示</button>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai-message">
+                            <div class="message-content">
+                                欢迎来到练习模式！我是你的AI学习助手。
+                                <br><br>在练习过程中，我可以：
+                                <br>• 分析你的答案对错
+                                <br>• 提供解题思路指导
+                                <br>• 解释相关知识点
+                                <br>• 给出针对性建议
+                                <br><br>准备好了吗？让我们开始练习吧！
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea id="chat-input" placeholder="输入你的问题或想法..." rows="3"></textarea>
+                        <button class="send-btn" onclick="sendPracticeMessage()">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script_practice.js') }}"></script>
+</body>
+</html> 
