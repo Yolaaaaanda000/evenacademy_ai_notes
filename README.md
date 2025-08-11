@@ -1,6 +1,7 @@
-# AI Video Notes Generator - Video Player App
+# AI Video Notes Generator
 
 一个基于AI的智能视频笔记生成器，专注于数学教育视频的内容分析和知识点提取。
+> 🎯 **独立项目**：这是一个完全独立的AI视频学习平台，专注于智能知识点提取和个性化练习推荐。
 
 ## 功能特性
 
