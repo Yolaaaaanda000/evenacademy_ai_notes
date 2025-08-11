@@ -11,7 +11,7 @@ class PracticeLLMHandler:
         初始化处理器，加载prompt模板。
         """
         self.prompt_template = self._load_prompt_template(prompt_template_path)
-        self.model = genai.GenerativeModel('models/gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
 
     def _load_prompt_template(self, filepath: str) -> str:
         """
@@ -63,8 +63,20 @@ class PracticeLLMHandler:
             # 调用Gemini模型
             response = self.model.generate_content(final_prompt)
             
+            # 检查响应状态和内容
+            if not response:
+                return "抱歉，AI服务暂时不可用，请稍后重试。"
+            
+            # 检查是否有finish_reason错误
+            if hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'finish_reason') and candidate.finish_reason == 1:
+                    return "抱歉，AI服务暂时不可用，请稍后重试。"
+                if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 0:
+                    return f"抱歉，AI服务出现异常，请稍后重试。"
+            
             # 🆕 修复Gemini API响应格式问题
-            if hasattr(response, 'text'):
+            if hasattr(response, 'text') and response.text:
                 return response.text
             elif hasattr(response, 'parts') and response.parts:
                 return response.parts[0].text

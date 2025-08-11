@@ -4,6 +4,7 @@ Summary整合器 - 专门负责将视频分段内容整合为高质量的完整S
 """
 
 import json
+import re
 from typing import Dict, List, Optional
 import google.generativeai as genai
 from datetime import datetime
@@ -20,8 +21,8 @@ class SummaryIntegrator:
             prompts_dir: Prompt模板文件目录
         """
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('models/gemini-2.5-pro')
-        
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
+
         # 🆕 初始化Prompt管理器
         self.prompt_manager = PromptManager(prompts_dir)
         
@@ -69,11 +70,15 @@ class SummaryIntegrator:
             
             # 🆕 3. 使用PromptManager获取Prompt模板
             try:
+                # 🆕 根据语言动态生成文档结构
+                language_header_structure = self._get_language_header_structure(language, lecture_title)
+                
                 integration_prompt = self.prompt_manager.get_prompt(
                     "summary_integration",
                     lecture_title=lecture_title,
                     segments_content=segments_content,
-                    language=language
+                    language=language,
+                    language_header_structure=language_header_structure
                 )
             except Exception as e:
                 print(f"❌ 获取Prompt模板失败: {e}")
@@ -81,21 +86,104 @@ class SummaryIntegrator:
             
             # 4. 调用LLM生成Summary
             print("🤖 正在调用LLM生成Summary...")
-            response = self.model.generate_content(integration_prompt)
+            print(f"📝 Prompt长度: {len(integration_prompt)} 字符")
+            print(f"📝 Prompt前200字符: {integration_prompt[:200]}...")
             
-            if not response or not hasattr(response, 'text'):
-                return self._create_empty_result("LLM响应失败")
+            try:
+                generation_config = {
+                    "temperature": 0.1,
+                }
+
+                response = self.model.generate_content(
+                    integration_prompt,
+                    generation_config=generation_config
+                )
+
+                print(f"✅ LLM调用成功，响应对象类型: {type(response)}")
+                
+                # 详细打印响应信息
+                if hasattr(response, '__dict__'):
+                    print(f"🔍 响应对象属性: {list(response.__dict__.keys())}")
+                
+                if hasattr(response, 'candidates') and response.candidates:
+                    print(f"🔍 候选数量: {len(response.candidates)}")
+                    for i, candidate in enumerate(response.candidates):
+                        print(f"🔍 候选{i+1}属性: {list(candidate.__dict__.keys())}")
+                        if hasattr(candidate, 'finish_reason'):
+                            print(f"🔍 候选{i+1} finish_reason: {candidate.finish_reason}")
+                        if hasattr(candidate, 'finish_message'):
+                            print(f"🔍 候选{i+1} finish_message: {candidate.finish_message}")
+                        if hasattr(candidate, 'safety_ratings'):
+                            print(f"🔍 候选{i+1} safety_ratings: {candidate.safety_ratings}")
+                
+                if hasattr(response, 'prompt_feedback'):
+                    print(f"🔍 Prompt反馈: {response.prompt_feedback}")
+                
+            except Exception as api_error:
+                print(f"❌ LLM API调用异常: {type(api_error).__name__}: {api_error}")
+                print(f"🔍 异常详情: {str(api_error)}")
+                return self._create_empty_result(f"LLM API调用异常: {str(api_error)}")
             
-            integrated_summary = response.text
+            # 检查响应状态和内容
+            if not response:
+                print("❌ LLM响应为空")
+                return self._create_empty_result("LLM响应为空")
+            
+            # 检查是否有finish_reason错误
+            if hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'finish_reason') and candidate.finish_reason not in [0, 1]: # 0 and 1 are success states
+                    reason = candidate.finish_reason
+                    message = f"LLM响应异常 (finish_reason={reason})"
+                    
+                    # Provide more specific error messages
+                    if reason == 3: # SAFETY
+                        message = f"内容因安全问题被阻止 (finish_reason=3)。Safety Ratings: {candidate.safety_ratings}"
+                        print(f"❌ {message}")
+                    else:
+                        print(f"❌ {message}")
+                        
+                    return self._create_empty_result(message)
+            
+
+            # 检查响应文本
+            integrated_summary = ""
+            try:
+                # This is the 'quick accessor' that can fail if no text part is returned.
+                integrated_summary = response.text
+                if not integrated_summary.strip():
+                    # This handles cases where the model returns text, but it's just empty space.
+                    print("❌ 响应的text属性为空白内容。")
+                    return self._create_empty_result("LLM响应返回了空文本。")
+
+            except ValueError:
+                # This block catches the exact error you are seeing.
+                print("❌ 访问 response.text 失败，因为模型没有返回文本内容。")
+                
+                # Now, let's inspect what the response *actually* contains to find out why.
+                try:
+                    part = response.candidates[0].content.parts[0]
+                    if hasattr(part, 'function_call') and part.function_call:
+                        fc = part.function_call
+                        print(f"🔍 诊断：响应包含一个工具调用: {fc.name}")
+                        return self._create_empty_result(f"模型试图调用工具 '{fc.name}'，而不是生成文本。请检查您的Prompt是否过于复杂。")
+                    else:
+                        print("🔍 诊断：响应不包含文本或已知的工具调用。")
+                        return self._create_empty_result("响应不包含有效的文本部分。")
+                except (IndexError, AttributeError):
+                    print("🔍 诊断：无法检查响应的具体内容。")
+                    return self._create_empty_result("响应结构异常，无法解析。")
+
+            print(f"✅ 成功获取响应文本，长度: {len(integrated_summary)} 字符")
             
             # 5. 创建时间戳映射
             timestamp_mapping = self._create_timestamp_mapping(segments)
             
             # 6. 提取知识点结构化信息
-            knowledge_points = self._extract_structured_knowledge_points(segments)
+            knowledge_points = self._extract_structured_knowledge_points(segments, language)
             
             # 🆕 7. 验证生成的Summary质量
-            quality_check = self.validate_summary_quality(integrated_summary)
+            quality_check = self.validate_summary_quality(integrated_summary, language)
             
             print("✅ Summary整合完成")
             
@@ -156,7 +244,7 @@ class SummaryIntegrator:
             end_time = segment.get('end_time', '00:00:00')
             
             # 根据语言动态生成标签
-            if language.lower() == "english":
+            if language.lower() in ["english", "en"]:
                 time_range_label = "**Time Range**"
                 category_label = "**Category**"
                 difficulty_label = "**Difficulty**"
@@ -217,12 +305,13 @@ class SummaryIntegrator:
         
         return timestamp_mapping
     
-    def _extract_structured_knowledge_points(self, segments: List[Dict]) -> List[Dict]:
+    def _extract_structured_knowledge_points(self, segments: List[Dict], language: str = "中文") -> List[Dict]:
         """
         从分段信息中提取结构化的知识点数据
         
         Args:
             segments: 视频分段列表
+            language: 语言（中文/English）
             
         Returns:
             List[Dict]: 结构化知识点列表
@@ -230,13 +319,25 @@ class SummaryIntegrator:
         knowledge_points = []
         
         for i, segment in enumerate(segments):
+            # 根据语言设置默认标题
+            if language.lower() in ["english", "en"]:
+                default_title = f"Knowledge Point {i+1}"
+                default_description = "No description"
+                default_category = "Uncategorized"
+                default_difficulty = "Intermediate"
+            else:
+                default_title = f"知识点{i+1}"
+                default_description = "无描述"
+                default_category = "未分类"
+                default_difficulty = "中等"
+            
             knowledge_point = {
                 'id': segment.get('id', f'kp_{i+1:03d}'),
-                'title': segment.get('title', f'知识点{i+1}'),
-                'description': segment.get('description', ''),
-                'category': segment.get('category', ''),
-                'difficulty': segment.get('difficulty', ''),
-                'importance': segment.get('importance', ''),
+                'title': segment.get('title', default_title),
+                'description': segment.get('description', default_description),
+                'category': segment.get('category', default_category),
+                'difficulty': segment.get('difficulty', default_difficulty),
+                'importance': segment.get('importance', 'medium'),
                 'start_time': segment.get('start_time', '00:00:00'),
                 'end_time': segment.get('end_time', '00:00:00'),
                 'duration_seconds': segment.get('duration_seconds', 0),
@@ -245,6 +346,30 @@ class SummaryIntegrator:
             knowledge_points.append(knowledge_point)
         
         return knowledge_points
+    
+    def _get_language_header_structure(self, language: str, lecture_title: str) -> str:
+        """
+        根据语言生成文档结构
+        
+        Args:
+            language: 语言（中文/English）
+            lecture_title: 课程标题
+            
+        Returns:
+            str: 文档结构字符串
+        """
+        if language.lower() in ["english", "en"]:
+            return f"""## Course Summary: {lecture_title}
+## **Course Overview**
+## **Main Knowledge Points**
+## **Important Formulas or Definitions**
+## **Key Concept Explanations**"""
+        else:
+            return f"""## 课程总结: {lecture_title}
+## **课程概览**
+## **主要知识点**
+## **重要公式或定义**
+## **关键概念解释**"""
     
     def _create_empty_result(self, error_message: str) -> Dict:
         """
@@ -267,25 +392,50 @@ class SummaryIntegrator:
             "error": error_message
         }
     
-    def validate_summary_quality(self, summary: str) -> Dict[str, bool]:
+    def validate_summary_quality(self, summary: str, language: str = "中文") -> Dict[str, bool]:
         """
-        验证生成的Summary质量
+        验证生成的Summary质量 - 【修复后版本，更健壮】
         
         Args:
             summary: 生成的Summary文档
+            language: 语言（中文/English）
             
         Returns:
             Dict: 质量验证结果
         """
-        validation_result = {
-            'has_course_overview': '## **Course Overview**' in summary,
-            'has_main_knowledge': '## **Main Knowledge Points**' in summary,
-            'has_formulas': '## **Important Formulas' in summary,
-            'has_key_concepts': '## **Key Concept Explanations**' in summary,
-            'min_length_ok': len(summary) > 500,
-            'has_title': 'Course Summary:' in summary
-        }
+        # 转换为小写以便进行不区分大小写的比较
+        summary_lower = summary.lower()
         
+        # 定义需要检查的关键词
+        if language.lower() in ["english", "en"]:
+            checks = {
+                'has_course_overview': r'##\s*(\*\*)*course overview(\*\*)*',
+                'has_main_knowledge': r'##\s*(\*\*)*main knowledge points(\*\*)*',
+                'has_formulas': r'##\s*(\*\*)*important formulas', # 匹配开头即可
+                'has_key_concepts': r'##\s*(\*\*)*key concept explanations(\*\*)*',
+                'has_title': r'course summary:'
+            }
+        else:
+            checks = {
+                'has_course_overview': r'##\s*(\*\*)*课程概览(\*\*)*',
+                'has_main_knowledge': r'##\s*(\*\*)*主要知识点(\*\*)*',
+                'has_formulas': r'##\s*(\*\*)*重要公式或定义(\*\*)*',
+                'has_key_concepts': r'##\s*(\*\*)*关键概念解释(\*\*)*',
+                'has_title': r'课程总结:'
+            }
+        
+        validation_result = {}
+        for key, pattern in checks.items():
+            # 使用正则表达式搜索，忽略大小写和可选的粗体标记
+            if re.search(pattern, summary_lower):
+                validation_result[key] = True
+            else:
+                validation_result[key] = False
+                print(f"⚠️ 质量验证失败：未找到 '{key}' (模式: {pattern})")
+
+        # 验证最小长度
+        validation_result['min_length_ok'] = len(summary) > 200 # 可适当调整长度阈值
+
         validation_result['overall_quality'] = all(validation_result.values())
         
         return validation_result

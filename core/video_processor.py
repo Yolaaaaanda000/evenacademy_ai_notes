@@ -16,7 +16,7 @@ class VideoProcessor:
     def __init__(self, api_key: str):
         """初始化视频处理器"""
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('models/gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
         self.summary_integrator = SummaryIntegrator(api_key, prompts_dir="./prompts")  # 🆕 优化2: 初始化Summary整合器
 
         # 🆕 初始化Prompt管理器
@@ -467,14 +467,48 @@ class VideoProcessor:
         estimated_tokens = len(prompt.split()) + len(transcription['text'].split())
         
         # 检查API响应
-        if not response or not hasattr(response, 'text'):
-            print(f"❌ API调用失败: {response}")
+        # 检查响应状态和内容
+        if not response:
+            print(f"❌ API调用失败: 响应为空")
             return {
                 "content_type": "未知",
                 "content_subtype": "未知",
                 "confidence": 0.0,
                 "content_segments": [],
                 "summary": "API调用失败"
+            }
+        
+        # 检查是否有finish_reason错误
+        if hasattr(response, 'candidates') and response.candidates:
+            candidate = response.candidates[0]
+            if hasattr(candidate, 'finish_reason') and candidate.finish_reason == 1:
+                print(f"❌ API调用被阻止或失败 (finish_reason=1)")
+                return {
+                    "content_type": "未知",
+                    "content_subtype": "未知",
+                    "confidence": 0.0,
+                    "content_segments": [],
+                    "summary": "API调用被阻止或失败"
+                }
+            if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 0:
+                print(f"❌ API调用异常 (finish_reason={candidate.finish_reason})")
+                return {
+                    "content_type": "未知",
+                    "content_subtype": "未知",
+                    "confidence": 0.0,
+                    "content_segments": [],
+                    "summary": f"API调用异常 (finish_reason={candidate.finish_reason})"
+                }
+        
+        # 检查响应文本
+        if not hasattr(response, 'text') or not response.text:
+            print(f"❌ API调用失败: 响应没有文本内容")
+            return {
+                "content_type": "未知",
+                "content_subtype": "未知",
+                "confidence": 0.0,
+                "content_segments": [],
+                "summary": "API响应没有文本内容"
             }
         
         print(f"✅ API调用成功，响应长度: {len(response.text)}")

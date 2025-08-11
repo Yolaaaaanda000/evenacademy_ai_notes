@@ -21,11 +21,12 @@ class KnowledgeTagger:
         
         Args:
             summary: 包含[KP:知识点]标签的Summary文本
+            language: 语言（中文/English）
             
         Returns:
             List[Dict]: 提取的知识点列表
         """
-        # 正则表达式匹配 [KP:知识点] 格式
+        # 正则表达式匹配 [KP:知识点] 格式（支持多语言）
         pattern = r'\[KP:(.*?)\]'
         matches = re.findall(pattern, summary)
         
@@ -84,7 +85,7 @@ class KnowledgeTagger:
             # 如果没有直接匹配，尝试关键词匹配
             if not matched_questions:
                 print(f"  ⚠️  直接匹配失败，尝试关键词匹配...")
-                matched_questions = self._match_by_keywords(kp_name, limit_per_kp)
+                matched_questions = self._match_by_keywords(kp_name, limit_per_kp, kp.get('language', '中文'))
             
             matches[kp_name] = matched_questions
             print(f"  ✅ 匹配到 {len(matched_questions)} 道题目")
@@ -95,24 +96,50 @@ class KnowledgeTagger:
         
         return matches
     
-    def _match_by_keywords(self, knowledge_point: str, limit: int) -> List[Dict]:
+    def _match_by_keywords(self, knowledge_point: str, limit: int, language: str = "中文") -> List[Dict]:
         """基于关键词匹配题目"""
-        # 定义关键词映射
-        keyword_mapping = {
-            '概率': ['probability', 'prob', 'chance', 'random'],
-            '统计': ['statistics', 'stat', 'data', 'distribution'],
-            '组合': ['combination', 'combinatorics', 'permutation'],
-            '几何': ['geometry', 'geometric', 'triangle', 'circle'],
-            '代数': ['algebra', 'equation', 'polynomial'],
-            '数论': ['number theory', 'divisibility', 'prime'],
-            '函数': ['function', 'graph', 'domain', 'range']
-        }
+        # 根据语言选择关键词映射
+        if language.lower() in ["english", "en"]:
+            # 英文关键词映射
+            keyword_mapping = {
+                'probability': ['probability', 'prob', 'chance', 'random'],
+                'statistics': ['statistics', 'stat', 'data', 'distribution'],
+                'combination': ['combination', 'combinatorics', 'permutation'],
+                'geometry': ['geometry', 'geometric', 'triangle', 'circle'],
+                'algebra': ['algebra', 'equation', 'polynomial'],
+                'number theory': ['number theory', 'divisibility', 'prime'],
+                'function': ['function', 'graph', 'domain', 'range'],
+                'experiment': ['experiment', 'trial', 'outcome', 'event'],
+                'outcome': ['outcome', 'result', 'event', 'sample'],
+                'frequency': ['frequency', 'count', 'occurrence'],
+                'distribution': ['distribution', 'spread', 'variation'],
+                'mean': ['mean', 'average', 'expected value'],
+                'variance': ['variance', 'spread', 'deviation'],
+                'standard deviation': ['standard deviation', 'std', 'deviation'],
+                'confidence': ['confidence', 'certainty', 'reliability'],
+                'hypothesis': ['hypothesis', 'assumption', 'theory'],
+                'test': ['test', 'examination', 'evaluation'],
+                'significance': ['significance', 'importance', 'relevance']
+            }
+        else:
+            # 中文关键词映射
+            keyword_mapping = {
+                '概率': ['probability', 'prob', 'chance', 'random'],
+                '统计': ['statistics', 'stat', 'data', 'distribution'],
+                '组合': ['combination', 'combinatorics', 'permutation'],
+                '几何': ['geometry', 'geometric', 'triangle', 'circle'],
+                '代数': ['algebra', 'equation', 'polynomial'],
+                '数论': ['number theory', 'divisibility', 'prime'],
+                '函数': ['function', 'graph', 'domain', 'range']
+            }
         
         # 查找匹配的关键词
         matched_keywords = []
-        for chinese_keyword, english_keywords in keyword_mapping.items():
-            if chinese_keyword in knowledge_point:
-                matched_keywords.extend(english_keywords)
+        knowledge_point_lower = knowledge_point.lower()
+        
+        for keyword, related_keywords in keyword_mapping.items():
+            if keyword.lower() in knowledge_point_lower:
+                matched_keywords.extend(related_keywords)
         
         if matched_keywords:
             return self.question_matcher.find_questions_by_topics(

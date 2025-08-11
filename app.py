@@ -3,6 +3,7 @@ import tempfile
 import json
 from flask import Flask, request, render_template, send_file, jsonify
 from dotenv import load_dotenv
+import google.generativeai as genai
 from datetime import datetime
 from core.video_processor import VideoProcessor
 from core.knowledge_tagger import KnowledgeTagger
@@ -15,6 +16,12 @@ NEW_PROCESSOR = True
 
 # 加载环境变量
 load_dotenv('llm.env')
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+os.environ['https_proxy'] = "http://127.0.0.1:8118"
+os.environ['http_proxy'] = "http://127.0.0.1:8118"
+os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
+
+
 
 app = Flask(__name__)
 

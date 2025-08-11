@@ -44,6 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🆕 初始化Summary功能
     initializeSummaryView();
+    
+    // 🆕 初始化页面语言显示
+    updatePageLanguage();
+    
+    // 🆕 监听语言选择变化
+    videoLanguageSelect.addEventListener('change', function() {
+        updatePageLanguage();
+    });
 
     // 视频文件上传处理
     videoFileInput.addEventListener('change', function(e) {
@@ -341,15 +349,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 生成知识点列表
     function generateKnowledgePointsList() {
+        // 获取当前选择的语言
+        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const isEnglish = currentLanguage.toLowerCase() === 'english';
+        
         if (!knowledgePoints || knowledgePoints.length === 0) {
+            const errorText = isEnglish ? {
+                title: "⚠️ No knowledge points identified",
+                subtitle: "This might be because:",
+                reasons: [
+                    "Video content is unclear",
+                    "Speech recognition quality is low", 
+                    "Video content is too complex"
+                ]
+            } : {
+                title: "⚠️ 未能识别到具体的知识点",
+                subtitle: "这可能是因为：",
+                reasons: [
+                    "视频内容不清晰",
+                    "语音识别质量较低",
+                    "视频内容过于复杂"
+                ]
+            };
+            
             knowledgeList.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: #666;">
-                    <p>⚠️ 未能识别到具体的知识点</p>
-                    <p>这可能是因为：</p>
+                    <p>${errorText.title}</p>
+                    <p>${errorText.subtitle}</p>
                     <ul style="text-align: left; margin: 20px 0;">
-                        <li>视频内容不清晰</li>
-                        <li>语音识别质量较低</li>
-                        <li>视频内容过于复杂</li>
+                        ${errorText.reasons.map(reason => `<li>${reason}</li>`).join('')}
                     </ul>
                 </div>
             `;
@@ -360,12 +388,12 @@ document.addEventListener('DOMContentLoaded', function() {
         knowledgePoints.forEach((kp, index) => {
             const startTime = kp.start_time || kp.startTime || '00:00:00';
             const endTime = kp.end_time || kp.endTime || '00:00:00';
-            const title = kp.title || kp.concept || kp.name || '未知片段';
+            const title = kp.title || kp.concept || kp.name || (isEnglish ? 'Unknown Segment' : '未知片段');
             const description = kp.description || '';
             const keyPhrase = kp.key_phrase || '';
             const importance = kp.importance || 'medium';
-            const category = kp.category || '概念';
-            const difficulty = kp.difficulty || '基础';
+            const category = kp.category || (isEnglish ? 'Concept' : '概念');
+            const difficulty = kp.difficulty || (isEnglish ? 'Basic' : '基础');
             const startSeconds = kp.start_seconds || 0;
             const endSeconds = kp.end_seconds || 0;
             const durationSeconds = kp.duration_seconds || 0;
@@ -381,18 +409,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="knowledge-time">${startTime}</span>
                         <span class="knowledge-title">${title}</span>
                         <div class="knowledge-controls">
-                            <button class="timestamp-btn" onclick="jumpToKnowledgePoint(${index})" title="跳转到时间戳">
+                            <button class="timestamp-btn" onclick="jumpToKnowledgePoint(${index})" title="${isEnglish ? 'Jump to timestamp' : '跳转到时间戳'}">
                                 🎬
                             </button>
                         </div>
                     </div>
                     <div class="knowledge-description">${description}</div>
-                    ${keyPhrase ? `<div class="knowledge-keyphrase"><strong>关键内容:</strong> ${keyPhrase}</div>` : ''}
+                    ${keyPhrase ? `<div class="knowledge-keyphrase"><strong>${isEnglish ? 'Key Content:' : '关键内容:'}</strong> ${keyPhrase}</div>` : ''}
                     <div class="knowledge-meta">
-                        <span class="importance-${importance}">重要性: ${importance}</span>
-                        <span>类别: ${category}</span>
-                        <span>难度: ${difficulty}</span>
-                        <span>时长: ${durationSeconds}秒</span>
+                        <span class="importance-${importance}">${isEnglish ? 'Importance:' : '重要性:'} ${importance}</span>
+                        <span>${isEnglish ? 'Category:' : '类别:'} ${category}</span>
+                        <span>${isEnglish ? 'Difficulty:' : '难度:'} ${difficulty}</span>
+                        <span>${isEnglish ? 'Duration:' : '时长:'} ${durationSeconds}${isEnglish ? 's' : '秒'}</span>
                     </div>
                 </div>
             `;
@@ -805,6 +833,49 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // 🆕 更新页面语言显示
+    function updatePageLanguage() {
+        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const isEnglish = currentLanguage.toLowerCase() === 'english';
+        
+        // 更新面板标题
+        const panelTitle = document.getElementById('panel-title');
+        if (panelTitle && currentView === 'knowledge') {
+            panelTitle.textContent = isEnglish ? '🎯 Knowledge Points' : '🎯 知识点标签';
+        }
+        
+        // 更新摘要标题
+        const summaryTitle = document.getElementById('summary-title');
+        if (summaryTitle) {
+            summaryTitle.textContent = isEnglish ? '📋 Content Summary' : '📋 内容摘要';
+        }
+        
+        // 更新知识点数量文本
+        const conceptCountText = document.getElementById('concept-count-text');
+        if (conceptCountText) {
+            conceptCountText.textContent = isEnglish ? ' knowledge points' : '个知识点';
+        }
+        
+        // 更新空摘要文本
+        const emptySummaryText = document.getElementById('empty-summary-text');
+        if (emptySummaryText) {
+            emptySummaryText.textContent = isEnglish ? 
+                '📤 Complete course summary will be displayed after video processing' : 
+                '📤 处理视频后将显示完整的课程Summary';
+        }
+        
+        // 更新按钮标题
+        const autoScrollBtn = document.getElementById('auto-scroll-btn');
+        if (autoScrollBtn) {
+            autoScrollBtn.title = isEnglish ? 'Auto Scroll' : '自动滚动';
+        }
+        
+        const filterBtn = document.getElementById('filter-btn');
+        if (filterBtn) {
+            filterBtn.title = isEnglish ? 'Filter' : '筛选';
+        }
+    }
+    
     // 🆕 初始化Summary视图功能
     function initializeSummaryView() {
         const viewToggleBtn = document.getElementById('view-toggle-btn');
@@ -814,25 +885,33 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!viewToggleBtn) return; // Guard against missing element
 
+        // 获取当前语言
+        function getCurrentLanguage() {
+            return document.getElementById('video-language')?.value || '中文';
+        }
+
         // 视图切换按钮事件
         viewToggleBtn.addEventListener('click', function() {
+            const currentLanguage = getCurrentLanguage();
+            const isEnglish = currentLanguage.toLowerCase() === 'english';
+            
             if (currentView === 'knowledge') {
                 // 切换到Summary视图
                 currentView = 'summary';
                 knowledgeListView.style.display = 'none';
                 summaryDetailView.style.display = 'block';
-                panelTitle.textContent = '📚 课程Summary';
+                panelTitle.textContent = isEnglish ? '📚 Course Summary' : '📚 课程Summary';
                 this.textContent = '🎯';
-                this.title = '切换到知识点视图';
+                this.title = isEnglish ? 'Switch to Knowledge Points View' : '切换到知识点视图';
                 this.classList.add('active');
             } else {
                 // 切换到知识点视图
                 currentView = 'knowledge';
                 knowledgeListView.style.display = 'block';
                 summaryDetailView.style.display = 'none';
-                panelTitle.textContent = '🎯 知识点标签';
+                panelTitle.textContent = isEnglish ? '🎯 Knowledge Points' : '🎯 知识点标签';
                 this.textContent = '📚';
-                this.title = '切换到Summary视图';
+                this.title = isEnglish ? 'Switch to Summary View' : '切换到Summary视图';
                 this.classList.remove('active');
             }
         });
@@ -842,11 +921,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateSummary(summary) {
         console.log('生成摘要，接收到的summary:', summary);
 
+        // 获取当前语言
+        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const isEnglish = currentLanguage.toLowerCase() === 'english';
+
         // 更新原有的简单摘要区域 (assuming 'summaryContent' is for a brief summary now)
         if (!summary || summary.trim() === '') {
             summaryContent.innerHTML = `
                 <div style="text-align: center; padding: 20px; color: #666;">
-                    <p>⚠️ 无法生成摘要</p>
+                    <p>⚠️ ${isEnglish ? 'Unable to generate summary' : '无法生成摘要'}</p>
                 </div>
             `;
             return;
@@ -860,7 +943,7 @@ document.addEventListener('DOMContentLoaded', function() {
         summaryContent.innerHTML = `
             <p>${briefSummary}</p>
             <button class="timestamp-btn" onclick="switchToSummaryView()" style="margin-top: 10px;">
-                📚 查看完整Summary
+                📚 ${isEnglish ? 'View Full Summary' : '查看完整Summary'}
             </button>
         `;
         
@@ -878,10 +961,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!detailedSummaryContent) return; // Guard clause
 
+        // 获取当前语言
+        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const isEnglish = currentLanguage.toLowerCase() === 'english';
+
         if (!summary || summary.trim() === '') {
             detailedSummaryContent.innerHTML = `
                 <div class="empty-summary">
-                    <p>⚠️ 无法生成详细Summary</p>
+                    <p>⚠️ ${isEnglish ? 'Unable to generate detailed summary' : '无法生成详细Summary'}</p>
                 </div>
             `;
             return;
@@ -898,108 +985,150 @@ document.addEventListener('DOMContentLoaded', function() {
         detailedSummaryContent.innerHTML = interactiveSummary;
     }
 
-    // 将Summary转换为可交互版本的【最终正确版本】
-    // 将Summary转换为可交互版本的【最终正确版本】
+// 将Summary转换为可交互版本的【最终正确版本】
     function makeInteractiveSummary(summary) {
+        // 修复 1: 添加对 summary 的有效性检查
         if (!summary) return '';
-        
-        console.log('开始处理摘要:', summary.substring(0, 200) + '...');
-        console.log('当前timestampMapping:', timestampMapping);
-        console.log('timestampMapping键值:', Object.keys(timestampMapping));
-        
+
+        // 修复 2: 初始化 html 变量，首先进行基础的 Markdown 转换
         let html = convertMarkdownToHtml(summary);
         
-        // 检查Summary中是否包含[KP:]格式的知识点
         const regex = /\[KP:(.*?)\]/g;
-        const matches = [...summary.matchAll(regex)];
-        console.log('找到的知识点标记:', matches.map(m => m[1]));
         
-        // 如果没有找到[KP:]格式的知识点，但有timestampMapping数据，则手动添加知识点按钮
-        if (matches.length === 0 && Object.keys(timestampMapping).length > 0) {
-            console.log('未找到[KP:]格式，但有时间戳映射，将手动添加知识点按钮');
+        // 在 html 变量上执行替换操作
+        html = html.replace(regex, (match, conceptTitle) => {
+            const trimmedTitle = conceptTitle.trim();
+            const mapping = timestampMapping[trimmedTitle];
             
-            // 在Summary末尾添加知识点按钮区域
-            const knowledgePointsSection = `
-                <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 1px solid #e9ecef;">
-                    <h3 style="margin-bottom: 15px; color: #333;">🎯 相关知识点</h3>
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                        ${Object.keys(timestampMapping).map(concept => {
-                            const mapping = timestampMapping[concept];
-                            const clickableConcept = `<span class="clickable-concept" 
-                                data-timestamp="${mapping.start_seconds || 0}" 
-                                data-title="${concept}"
-                                onclick="jumpToConceptTimestamp('${concept.replace(/'/g, "\\'")}')">
-                                ${concept}
-                                <span class="timestamp-tooltip">${mapping.start_time || '00:00'}</span>
-                            </span>`;
-                            
-                            const practiceButton = `<button class="practice-btn" onclick="openPracticeDialog('${concept.replace(/'/g, "\\'")}', event)" title="做题练习">
-                                📝
-                            </button>`;
-                            
-                            const dialogueButton = `<button class="dialogue-btn" onclick="openKnowledgePointDialogue('${concept.replace(/'/g, "\\'")}', '${mapping.start_time || '00:00'}', '${mapping.start_seconds || 0}', event)" title="与AI对话讨论这个知识点">
-                                💬
-                            </button>`;
-                            
-                            return `<div style="display: inline-flex; align-items: center; margin: 5px;">${clickableConcept}${practiceButton}${dialogueButton}</div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
+            // 创建可点击的知识点标签
+            let clickableConcept = '';
+            if (mapping) {
+                clickableConcept = `<span class="clickable-concept" 
+                    data-timestamp="${mapping.start_seconds || 0}" 
+                    data-title="${trimmedTitle}"
+                    onclick="jumpToConceptTimestamp('${trimmedTitle.replace(/'/g, "\\'")}')">
+                    ${trimmedTitle}
+                    <span class="timestamp-tooltip">${mapping.start_time || '00:00'}</span>
+                </span>`;
+            } else {
+                // 如果没有映射，仅作为普通文本显示
+                clickableConcept = `<span class="non-clickable-concept">${trimmedTitle}</span>`;
+            }
             
-            html += knowledgePointsSection;
-        } else {
-            // 处理[KP:]格式的知识点
-            html = html.replace(regex, (match, conceptTitle) => {
-                const trimmedTitle = conceptTitle.trim();
-                const mapping = timestampMapping[trimmedTitle];
-                
-                console.log(`处理知识点: "${trimmedTitle}", 找到映射:`, mapping);
-                
-                let clickableConcept = '';
-                let practiceButton = '';
-                let dialogueButton = '';
+            // 添加练习和对话按钮
+            const practiceButton = `<button class="practice-btn" onclick="openPracticeDialog('${trimmedTitle.replace(/'/g, "\\'")}', event)" title="做题练习">📝</button>`;
+            const dialogueButton = `<button class="dialogue-btn" onclick="openKnowledgePointDialogue('${trimmedTitle.replace(/'/g, "\\'")}', '${mapping ? mapping.start_time || '00:00' : '00:00'}', '${mapping ? mapping.start_seconds || 0 : 0}', event)" title="与AI对话讨论这个知识点">💬</button>`;
+            
+            return clickableConcept + practiceButton + dialogueButton;
+        });
 
-                if (mapping) {
-                    // 1. 创建可点击的、用于视频跳转的SPAN
-                    clickableConcept = `<span class="clickable-concept" 
-                                data-timestamp="${mapping.start_seconds || 0}" 
-                                data-title="${trimmedTitle}"
-                                onclick="jumpToConceptTimestamp('${trimmedTitle.replace(/'/g, "\\'")}')">
-                                ${trimmedTitle}
-                                <span class="timestamp-tooltip">${mapping.start_time || '00:00'}</span>
-                            </span>`;
-                    console.log(`创建可点击知识点: ${trimmedTitle}`);
-                } else {
-                    // 如果没有视频时间戳映射，只创建一个普通的SPAN
-                    console.warn(`警告: 在timestampMapping中未找到概念 '${trimmedTitle}' 的映射`);
-                    clickableConcept = `<span class="non-clickable-concept">${trimmedTitle}</span>`;
-                    console.log(`创建不可点击知识点: ${trimmedTitle}`);
-                }
-
-                // 2. 创建用于打开练习对话框的BUTTON
-                // 这个按钮的onclick事件只会触发练习功能
-                practiceButton = `<button class="practice-btn" onclick="openPracticeDialog('${trimmedTitle.replace(/'/g, "\\'")}', event)" title="做题练习">
-                                    📝
-                                </button>`;
-
-                // 3. 创建用于打开知识点对话的BUTTON
-                // 这个按钮的onclick事件只会触发对话功能
-                dialogueButton = `<button class="dialogue-btn" onclick="openKnowledgePointDialogue('${trimmedTitle.replace(/'/g, "\\'")}', '${mapping ? mapping.start_time || '00:00' : '00:00'}', '${mapping ? mapping.start_seconds || 0 : 0}', event)" title="与AI对话讨论这个知识点">
-                                    💬
-                                </button>`;
-
-                const result = clickableConcept + practiceButton + dialogueButton;
-                console.log(`生成的HTML: ${result}`);
-                
-                // 4. 将三者并列返回
-                return result;
-            });
-        }
-        
-        console.log('最终生成的HTML长度:', html.length);
+        // 修复 3: 返回处理后的 html 字符串
         return html;
     }
+
+    // 将Summary转换为可交互版本的【最终正确版本】
+    // function makeInteractiveSummary(summary) {
+    //     if (!summary) return '';
+        
+    //     console.log('开始处理摘要:', summary.substring(0, 200) + '...');
+    //     console.log('当前timestampMapping:', timestampMapping);
+    //     console.log('timestampMapping键值:', Object.keys(timestampMapping));
+        
+    //     let html = convertMarkdownToHtml(summary);
+        
+    //     // 检查Summary中是否包含[KP:]格式的知识点
+    //     const regex = /\[KP:(.*?)\]/g;
+    //     const matches = [...summary.matchAll(regex)];
+    //     console.log('找到的知识点标记:', matches.map(m => m[1]));
+        
+    //     // 如果没有找到[KP:]格式的知识点，但有timestampMapping数据，则手动添加知识点按钮
+    //     if (matches.length === 0 && Object.keys(timestampMapping).length > 0) {
+    //         console.log('未找到[KP:]格式，但有时间戳映射，将手动添加知识点按钮');
+            
+    //         // 在Summary末尾添加知识点按钮区域
+    //         const knowledgePointsSection = `
+    //             <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 1px solid #e9ecef;">
+    //                 <h3 style="margin-bottom: 15px; color: #333;">🎯 相关知识点</h3>
+    //                 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+    //                     ${Object.keys(timestampMapping).map(concept => {
+    //                         const mapping = timestampMapping[concept];
+    //                         const clickableConcept = `<span class="clickable-concept" 
+    //                             data-timestamp="${mapping.start_seconds || 0}" 
+    //                             data-title="${concept}"
+    //                             onclick="jumpToConceptTimestamp('${concept.replace(/'/g, "\\'")}')">
+    //                             ${concept}
+    //                             <span class="timestamp-tooltip">${mapping.start_time || '00:00'}</span>
+    //                         </span>`;
+                            
+    //                         const practiceButton = `<button class="practice-btn" onclick="openPracticeDialog('${concept.replace(/'/g, "\\'")}', event)" title="做题练习">
+    //                             📝
+    //                         </button>`;
+                            
+    //                         const dialogueButton = `<button class="dialogue-btn" onclick="openKnowledgePointDialogue('${concept.replace(/'/g, "\\'")}', '${mapping.start_time || '00:00'}', '${mapping.start_seconds || 0}', event)" title="与AI对话讨论这个知识点">
+    //                             💬
+    //                         </button>`;
+                            
+    //                         return `<div style="display: inline-flex; align-items: center; margin: 5px;">${clickableConcept}${practiceButton}${dialogueButton}</div>`;
+    //                     }).join('')}
+    //                 </div>
+    //             </div>
+    //         `;
+            
+    //         html += knowledgePointsSection;
+    //     } else {
+    //         // 处理[KP:]格式的知识点
+    //         html = html.replace(regex, (match, conceptTitle) => {
+    //             const trimmedTitle = conceptTitle.trim();
+    //             const mapping = timestampMapping[trimmedTitle];
+                
+    //             console.log(`处理知识点: "${trimmedTitle}", 找到映射:`, mapping);
+                
+    //             let clickableConcept = '';
+    //             let practiceButton = '';
+    //             let dialogueButton = '';
+
+    //             if (mapping) {
+    //                 // 1. 创建可点击的、用于视频跳转的SPAN
+    //                 clickableConcept = `<span class="clickable-concept" 
+    //                             data-timestamp="${mapping.start_seconds || 0}" 
+    //                             data-title="${trimmedTitle}"
+    //                             onclick="jumpToConceptTimestamp('${trimmedTitle.replace(/'/g, "\\'")}')">
+    //                             ${trimmedTitle}
+    //                             <span class="timestamp-tooltip">${mapping.start_time || '00:00'}</span>
+    //                         </span>`;
+    //                 console.log(`创建可点击知识点: ${trimmedTitle}`);
+    //             } else {
+    //                 // 如果没有视频时间戳映射，只创建一个普通的SPAN
+    //                 console.warn(`警告: 在timestampMapping中未找到概念 '${trimmedTitle}' 的映射`);
+    //                 clickableConcept = `<span class="non-clickable-concept">${trimmedTitle}</span>`;
+    //                 console.log(`创建不可点击知识点: ${trimmedTitle}`);
+    //             }
+
+    //             // 2. 创建用于打开练习对话框的BUTTON
+    //             // 这个按钮的onclick事件只会触发练习功能
+    //             practiceButton = `<button class="practice-btn" onclick="openPracticeDialog('${trimmedTitle.replace(/'/g, "\\'")}', event)" title="做题练习">
+    //                                 📝
+    //                             </button>`;
+
+    //             // 3. 创建用于打开知识点对话的BUTTON
+    //             // 这个按钮的onclick事件只会触发对话功能
+    //             dialogueButton = `<button class="dialogue-btn" onclick="openKnowledgePointDialogue('${trimmedTitle.replace(/'/g, "\\'")}', '${mapping ? mapping.start_time || '00:00' : '00:00'}', '${mapping ? mapping.start_seconds || 0 : 0}', event)" title="与AI对话讨论这个知识点">
+    //                                 💬
+    //                             </button>`;
+
+    //             const result = clickableConcept + practiceButton + dialogueButton;
+    //             console.log(`生成的HTML: ${result}`);
+                
+    //             // 4. 将三者并列返回
+    //             return result;
+    //         });
+    //     }
+        
+    //     console.log('最终生成的HTML长度:', html.length);
+    //     return html;
+    // }
+
+
 
     // 简单的Markdown转HTML函数 (确保它不会错误地处理我们的标记)
     function convertMarkdownToHtml(markdown) {

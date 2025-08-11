@@ -173,6 +173,27 @@ Please start responding:
             # 生成回复
             try:
                 response = self.model.generate_content(formatted_prompt)
+                
+                # 检查响应状态和内容
+                if not response:
+                    print(f"❌ LLM调用失败: 响应为空")
+                    return "抱歉，AI服务暂时不可用，请稍后重试。"
+                
+                # 检查是否有finish_reason错误
+                if hasattr(response, 'candidates') and response.candidates:
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, 'finish_reason') and candidate.finish_reason == 1:
+                        print(f"❌ LLM调用被阻止或失败 (finish_reason=1)")
+                        return "抱歉，AI服务暂时不可用，请稍后重试。"
+                    if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 0:
+                        print(f"❌ LLM调用异常 (finish_reason={candidate.finish_reason})")
+                        return f"抱歉，AI服务出现异常，请稍后重试。"
+                
+                # 检查响应文本
+                if not hasattr(response, 'text') or not response.text:
+                    print(f"❌ LLM调用失败: 响应没有文本内容")
+                    return "抱歉，AI服务暂时不可用，请稍后重试。"
+                
                 ai_response = response.text
                 print(f"✅ 知识点对话回复生成成功 (轮次: {dialogue_state['round']})")
                 return ai_response
