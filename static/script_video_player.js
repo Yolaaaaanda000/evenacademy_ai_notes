@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoPlayer = document.getElementById('video-player');
     const videoSource = document.getElementById('video-source');
     const videoTitleDisplay = document.getElementById('video-title-display');
-    const currentTimeSpan = document.getElementById('current-time');
-    const totalTimeSpan = document.getElementById('total-time');
+
     const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     // 知识点面板元素
@@ -504,27 +503,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // 视频加载完成事件
         videoPlayer.addEventListener('loadedmetadata', function() {
             console.log('视频加载完成');
-            updateTotalTime();
         });
 
-        // 视频播放事件
-        videoPlayer.addEventListener('play', function() {
-            startTimeUpdate();
-        });
 
-        // 视频暂停事件
-        videoPlayer.addEventListener('pause', function() {
-            stopTimeUpdate();
-        });
-
-        // 视频结束事件
-        videoPlayer.addEventListener('ended', function() {
-            stopTimeUpdate();
-        });
 
         // 时间更新事件
         videoPlayer.addEventListener('timeupdate', function() {
-            updateCurrentTime();
             updateActiveKnowledgePoint();
         });
 
@@ -540,16 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 更新时间显示
-    function updateCurrentTime() {
-        const currentTime = videoPlayer.currentTime;
-        currentTimeSpan.textContent = formatTime(currentTime);
-    }
 
-    function updateTotalTime() {
-        const totalTime = videoPlayer.duration;
-        totalTimeSpan.textContent = formatTime(totalTime);
-    }
 
     // 格式化时间
     function formatTime(seconds) {
@@ -562,19 +537,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // 开始时间更新
-    function startTimeUpdate() {
-        if (updateTimer) clearInterval(updateTimer);
-        updateTimer = setInterval(updateCurrentTime, 1000);
-    }
 
-    // 停止时间更新
-    function stopTimeUpdate() {
-        if (updateTimer) {
-            clearInterval(updateTimer);
-            updateTimer = null;
-        }
-    }
 
     // 更新当前活跃的知识点
     function updateActiveKnowledgePoint() {
@@ -1427,7 +1390,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         window.dialogueHistory = [];
-        updateCurrentTime();
     };
 
     // 更新字符计数
