@@ -283,22 +283,7 @@ body {
     margin: 0;
 }
 
-.hint-btn {
-    background: #ffd43b;
-    color: #333;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
 
-.hint-btn:hover {
-    background: #fcc419;
-    transform: translateY(-2px);
-}
 
 .chat-messages {
     flex: 1;
