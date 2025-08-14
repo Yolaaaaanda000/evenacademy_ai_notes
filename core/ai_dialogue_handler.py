@@ -210,12 +210,19 @@ Please respond in Chinese.
             # 检查是否有finish_reason错误
             if hasattr(response, 'candidates') and response.candidates:
                 candidate = response.candidates[0]
-                if hasattr(candidate, 'finish_reason') and candidate.finish_reason == 1:
-                    print(f"❌ LLM调用被阻止或失败 (finish_reason=1)")
-                    return "抱歉，AI服务暂时不可用，请稍后重试。"
-                if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 0:
-                    print(f"❌ LLM调用异常 (finish_reason={candidate.finish_reason})")
-                    return f"抱歉，AI服务出现异常，请稍后重试。"
+                if hasattr(candidate, 'finish_reason'):
+                    finish_reason = candidate.finish_reason
+                    if finish_reason in [0, 1]:  # 0和1都表示正常完成
+                        print(f"✅ LLM调用正常完成 (finish_reason={finish_reason})")
+                    elif finish_reason == 2:
+                        print(f"⚠️ LLM调用达到最大token限制 (finish_reason=2)")
+                    elif finish_reason == 3:
+                        print(f"❌ LLM调用被安全过滤阻止 (finish_reason=3)")
+                        return "抱歉，内容因安全问题被阻止，请重新提问。"
+                    elif finish_reason == 4:
+                        print(f"⚠️ LLM调用达到递归限制 (finish_reason=4)")
+                    else:
+                        print(f"⚠️ LLM调用出现未知状态 (finish_reason={finish_reason})")
             
             # 检查响应文本
             if not hasattr(response, 'text') or not response.text:

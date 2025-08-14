@@ -16,7 +16,7 @@ class VideoProcessor:
     def __init__(self, api_key: str):
         """初始化视频处理器"""
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
         self.summary_integrator = SummaryIntegrator(api_key, prompts_dir="./prompts")  # 🆕 优化2: 初始化Summary整合器
 
         # 🆕 初始化Prompt管理器
@@ -481,24 +481,25 @@ class VideoProcessor:
         # 检查是否有finish_reason错误
         if hasattr(response, 'candidates') and response.candidates:
             candidate = response.candidates[0]
-            if hasattr(candidate, 'finish_reason') and candidate.finish_reason == 1:
-                print(f"❌ API调用被阻止或失败 (finish_reason=1)")
-                return {
-                    "content_type": "未知",
-                    "content_subtype": "未知",
-                    "confidence": 0.0,
-                    "content_segments": [],
-                    "summary": "API调用被阻止或失败"
-                }
-            if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 0:
-                print(f"❌ API调用异常 (finish_reason={candidate.finish_reason})")
-                return {
-                    "content_type": "未知",
-                    "content_subtype": "未知",
-                    "confidence": 0.0,
-                    "content_segments": [],
-                    "summary": f"API调用异常 (finish_reason={candidate.finish_reason})"
-                }
+            if hasattr(candidate, 'finish_reason'):
+                finish_reason = candidate.finish_reason
+                if finish_reason in [0, 1]:  # 0和1都表示正常完成
+                    print(f"✅ API调用正常完成 (finish_reason={finish_reason})")
+                elif finish_reason == 2:
+                    print(f"⚠️ API调用达到最大token限制 (finish_reason=2)")
+                elif finish_reason == 3:
+                    print(f"❌ API调用被安全过滤阻止 (finish_reason=3)")
+                    return {
+                        "content_type": "未知",
+                        "content_subtype": "未知",
+                        "confidence": 0.0,
+                        "content_segments": [],
+                        "summary": "API调用被安全过滤阻止"
+                    }
+                elif finish_reason == 4:
+                    print(f"⚠️ API调用达到递归限制 (finish_reason=4)")
+                else:
+                    print(f"⚠️ API调用出现未知状态 (finish_reason={finish_reason})")
         
         # 检查响应文本
         if not hasattr(response, 'text') or not response.text:

@@ -63,6 +63,7 @@ class CSVMatcher:
             
             # 计数相关
             'count': ['counting', 'combinatorics', 'permutation', 'combination', '计数', '排列', '组合', '组合数学'],
+            'set': ['set', 'set theory', 'element', 'subset', 'union', 'intersection', 'complement', '集合', '集合论', '元素', '子集', '并集', '交集', '补集'],
             'Markov': ['markov', 'chain', 'probability', 'state', '马尔可夫', '链', '状态'],
             'Recursion': ['recursion', 'recursive', 'recurrence', '递归', '递推', '递推关系'],
             'logic': ['logic', 'logical', 'boolean', '逻辑', '布尔', '逻辑运算'],
@@ -173,7 +174,8 @@ class CSVMatcher:
             '几何', '图形', '面积', '周长', '体积', '三角形', '圆形', '正方形', '矩形',
             '代数', '函数', '方程', '不等式', '多项式', '数列', '对数', '指数',
             '数论', '整除', '模运算', '因数', '质数', '合数', '进制', '数字',
-            '计数', '排列', '组合', '递归', '逻辑', '游戏', '策略'
+            '计数', '排列', '组合', '递归', '逻辑', '游戏', '策略',
+            '集合', '集合论', '元素', '子集', '并集', '交集', '补集'
         ]
         
         for keyword in chinese_keyword_list:
@@ -194,7 +196,8 @@ class CSVMatcher:
             'geometry', 'triangle', 'circle', 'area', 'perimeter', 'volume',
             'algebra', 'function', 'equation', 'polynomial', 'sequence', 'logarithm', 'exponent',
             'divisibility', 'modulo', 'factor', 'prime', 'composite', 'base', 'digit',
-            'counting', 'permutation', 'combination', 'recursion', 'logic', 'game', 'strategy'
+            'counting', 'permutation', 'combination', 'recursion', 'logic', 'game', 'strategy',
+            'set', 'set theory', 'element', 'subset', 'union', 'intersection', 'complement'
         ]
         
         for keyword in english_keyword_list:

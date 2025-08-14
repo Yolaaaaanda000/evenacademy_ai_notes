@@ -70,10 +70,19 @@ class PracticeLLMHandler:
             # 检查是否有finish_reason错误
             if hasattr(response, 'candidates') and response.candidates:
                 candidate = response.candidates[0]
-                if hasattr(candidate, 'finish_reason') and candidate.finish_reason == 1:
-                    return "抱歉，AI服务暂时不可用，请稍后重试。"
-                if hasattr(candidate, 'finish_reason') and candidate.finish_reason != 0:
-                    return f"抱歉，AI服务出现异常，请稍后重试。"
+                if hasattr(candidate, 'finish_reason'):
+                    finish_reason = candidate.finish_reason
+                    if finish_reason in [0, 1]:  # 0和1都表示正常完成
+                        print(f"✅ LLM调用正常完成 (finish_reason={finish_reason})")
+                    elif finish_reason == 2:
+                        print(f"⚠️ LLM调用达到最大token限制 (finish_reason=2)")
+                    elif finish_reason == 3:
+                        print(f"❌ LLM调用被安全过滤阻止 (finish_reason=3)")
+                        return "抱歉，内容因安全问题被阻止，请重新提问。"
+                    elif finish_reason == 4:
+                        print(f"⚠️ LLM调用达到递归限制 (finish_reason=4)")
+                    else:
+                        print(f"⚠️ LLM调用出现未知状态 (finish_reason={finish_reason})")
             
             # 🆕 修复Gemini API响应格式问题
             if hasattr(response, 'text') and response.text:

@@ -21,7 +21,7 @@ class SummaryIntegrator:
             prompts_dir: Prompt模板文件目录
         """
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-pro')
 
         # 🆕 初始化Prompt管理器
         self.prompt_manager = PromptManager(prompts_dir)
@@ -132,18 +132,20 @@ class SummaryIntegrator:
             # 检查是否有finish_reason错误
             if hasattr(response, 'candidates') and response.candidates:
                 candidate = response.candidates[0]
-                if hasattr(candidate, 'finish_reason') and candidate.finish_reason not in [0, 1]: # 0 and 1 are success states
-                    reason = candidate.finish_reason
-                    message = f"LLM响应异常 (finish_reason={reason})"
-                    
-                    # Provide more specific error messages
-                    if reason == 3: # SAFETY
+                if hasattr(candidate, 'finish_reason'):
+                    finish_reason = candidate.finish_reason
+                    if finish_reason in [0, 1]:  # 0和1都表示正常完成
+                        print(f"✅ LLM调用正常完成 (finish_reason={finish_reason})")
+                    elif finish_reason == 2:
+                        print(f"⚠️ LLM调用达到最大token限制 (finish_reason=2)")
+                    elif finish_reason == 3:
                         message = f"内容因安全问题被阻止 (finish_reason=3)。Safety Ratings: {candidate.safety_ratings}"
                         print(f"❌ {message}")
+                        return self._create_empty_result(message)
+                    elif finish_reason == 4:
+                        print(f"⚠️ LLM调用达到递归限制 (finish_reason=4)")
                     else:
-                        print(f"❌ {message}")
-                        
-                    return self._create_empty_result(message)
+                        print(f"⚠️ LLM调用出现未知状态 (finish_reason={finish_reason})")
             
 
             # 检查响应文本
