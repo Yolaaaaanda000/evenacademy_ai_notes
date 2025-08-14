@@ -900,18 +900,20 @@ main {
 }
 
 .dialogue-header {
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    color: white;
+    background: white;
+    color: var(--text-dark);
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid #E2E8F0;
 }
 
 .dialogue-header h3 {
     margin: 0;
     font-size: 24px;
     font-weight: 600;
+    color: var(--text-dark);
 }
 
 .dialogue-controls {
@@ -920,9 +922,9 @@ main {
 }
 
 .dialogue-controls .control-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: var(--text-dark);
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
@@ -931,7 +933,8 @@ main {
 }
 
 .dialogue-controls .control-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: #e9ecef;
+    border-color: #adb5bd;
     transform: scale(1.05);
 }
 
@@ -1771,14 +1774,15 @@ footer {
 
 .dialogue-header {
     padding: 20px 30px;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    color: white;
+    background: white;
+    color: var(--text-dark);
     border-bottom: 1px solid var(--border-color);
 }
 
 .dialogue-header h4 {
     margin: 0 0 10px 0;
     font-size: 1.3rem;
+    color: var(--text-dark);
 }
 
 .dialogue-status {
