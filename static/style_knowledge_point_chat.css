@@ -122,6 +122,9 @@ body {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 40px);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* 对话状态栏 */
@@ -311,6 +314,8 @@ body {
     padding: 20px;
     background: white;
     border-top: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .input-container {
@@ -319,6 +324,8 @@ body {
 
 #chat-input {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
     padding: 15px;
