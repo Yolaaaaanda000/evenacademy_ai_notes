@@ -4,6 +4,7 @@
 
 import pandas as pd
 import os
+import re
 from typing import List, Dict, Optional
 
 # ---------------- VVVV NEW CSVMatcher Class VVVV ----------------
@@ -16,8 +17,58 @@ class CSVMatcher:
     
     def __init__(self, mapping_filepath='data/knowledge/mapping.csv'):
         self.questions_cache = None
+        # 🆕 新增：扩展的关键词映射
+        self.extended_keyword_mapping = self._create_extended_keyword_mapping()
         # 加载知识点关键词映射
         self.topic_keywords = self._load_topic_keywords_from_csv(mapping_filepath)
+
+    def _create_extended_keyword_mapping(self) -> Dict[str, List[str]]:
+        """
+        🆕 创建扩展的关键词映射，包含更多中英文关键词
+        """
+        return {
+            # 概率相关
+            'prob': ['probability', 'prob', 'chance', 'random', 'likely', 'unlikely', 'odds', '概率', '随机', '可能性', '期望', '期望值'],
+            'Expectation': ['expectation', 'expected value', 'mean', '期望', '期望值', '平均值', '数学期望'],
+            
+            # 几何相关
+            'geom': ['geometry', 'geometric', 'triangle', 'circle', 'area', 'perimeter', 'volume', '几何', '图形', '面积', '周长', '体积', '三角形', '圆形', '正方形', '矩形'],
+            'area': ['area', 'surface', 'square', 'rectangle', '面积', '表面积', '平方', '矩形'],
+            'circle': ['circle', 'circumference', 'radius', 'diameter', 'arc', '圆', '圆周', '半径', '直径', '弧'],
+            'angle': ['angle', 'degree', 'radian', 'trigonometry', '角', '角度', '弧度', '三角函数'],
+            'sim': ['similar', 'similarity', 'proportion', 'ratio', '相似', '比例', '相似性'],
+            'length': ['length', 'distance', 'perimeter', '长度', '距离', '周长'],
+            '3d': ['3d', 'three dimensional', 'volume', 'solid', '三维', '体积', '立体'],
+            'coor': ['coordinate', 'coordinate geometry', 'graph', '坐标', '坐标系', '图形'],
+            
+            # 代数相关
+            'misa': ['miscellaneous algebra', 'algebra', 'algebraic', '代数', '代数运算'],
+            'complex': ['complex', 'imaginary', 'real', 'plane', '复数', '虚数', '实数', '复平面'],
+            'function': ['function', 'functional', 'equation', '函数', '方程', 'f(x)', 'y='],
+            'equation': ['equation', 'inequality', 'solve', 'solution', '方程', '不等式', '解', '求解'],
+            'poly': ['polynomial', 'degree', 'coefficient', '多项式', '次数', '系数'],
+            'seq': ['sequence', 'series', 'arithmetic', 'geometric', '数列', '级数', '等差数列', '等比数列'],
+            'log': ['logarithm', 'log', 'exponential', '对数', '指数', '对数函数'],
+            'exp': ['exponent', 'exponential', 'power', '指数', '幂', '指数函数'],
+            'trig': ['trigonometry', 'sine', 'cosine', 'tangent', '三角', '三角函数', '正弦', '余弦', '正切'],
+            'stats': ['statistics', 'stat', 'data', 'distribution', '统计', '数据', '分布', '均值', '中位数'],
+            
+            # 数论相关
+            'div': ['divisibility', 'divisible', 'factor', 'multiple', '整除', '整除性', '倍数', '因数'],
+            'mod': ['modular', 'modulo', 'remainder', 'congruent', '模', '模运算', '同余', '余数'],
+            'factor': ['factor', 'divisor', 'prime', 'composite', '因数', '因子', '质数', '合数'],
+            'base': ['base', 'representation', 'number system', '进制', '表示', '数制'],
+            'lcm': ['lcm', 'least common multiple', 'multiple', '最小公倍数', '公倍数'],
+            'digit': ['digit', 'number', 'representation', '数字', '数位', '表示'],
+            
+            # 计数相关
+            'count': ['counting', 'combinatorics', 'permutation', 'combination', '计数', '排列', '组合', '组合数学'],
+            'Markov': ['markov', 'chain', 'probability', 'state', '马尔可夫', '链', '状态'],
+            'Recursion': ['recursion', 'recursive', 'recurrence', '递归', '递推', '递推关系'],
+            'logic': ['logic', 'logical', 'boolean', '逻辑', '布尔', '逻辑运算'],
+            'uniform': ['uniform', 'distribution', 'probability', '均匀', '分布', '均匀分布'],
+            'game': ['game', 'strategy', 'winning', '游戏', '策略', '获胜'],
+        }
 
     def _load_topic_keywords_from_csv(self, filepath: str) -> Dict[str, List[str]]:
         """
@@ -33,46 +84,12 @@ class CSVMatcher:
                 # 使用 'Topic' 列作为关键词描述
                 topic_description = row.get('Topic', '')
                 if pd.notna(topic_code) and pd.notna(topic_description):
-                    # 将主题描述作为关键词，并添加一些相关的英文关键词
+                    # 将主题描述作为关键词，并添加扩展的关键词
                     keywords = [topic_description.lower()]
-                    # 添加一些常见的英文和中文关键词映射
-                    keyword_mapping = {
-                        'prob': ['probability', 'prob', 'chance', 'random', '概率', '随机', '可能性'],
-                        'geom': ['geometry', 'geometric', 'triangle', 'circle', 'area', '几何', '图形', '面积'],
-                        'div': ['divisibility', 'divisible', 'factor', 'multiple', '整除', '整除性', '倍数'],
-                        'mod': ['modular', 'modulo', 'remainder', 'congruent', '模', '模运算', '同余'],
-                        'factor': ['factor', 'divisor', 'prime', 'composite', '因数', '因子', '质数', '合数'],
-                        'count': ['counting', 'combinatorics', 'permutation', 'combination', '计数', '排列', '组合'],
-                        'area': ['area', 'surface', 'square', 'rectangle', '面积', '表面积'],
-                        'sim': ['similar', 'similarity', 'proportion', 'ratio', '相似', '比例'],
-                        'complex': ['complex', 'imaginary', 'real', 'plane', '复数', '虚数'],
-                        'trig': ['trigonometry', 'sine', 'cosine', 'tangent', '三角', '三角函数'],
-                        'function': ['function', 'functional', 'equation', '函数', '方程'],
-                        'log': ['logarithm', 'log', 'exponential', '对数', '指数'],
-                        'exp': ['exponent', 'exponential', 'power', '指数', '幂'],
-                        'equation': ['equation', 'inequality', 'solve', 'solution', '方程', '不等式', '解'],
-                        'poly': ['polynomial', 'degree', 'coefficient', '多项式', '次数'],
-                        'seq': ['sequence', 'series', 'arithmetic', 'geometric', '数列', '级数'],
-                        'stats': ['statistics', 'stat', 'data', 'distribution', '统计', '数据'],
-                        'circle': ['circle', 'circumference', 'radius', 'diameter', '圆', '圆周', '半径'],
-                        'angle': ['angle', 'degree', 'radian', 'trigonometry', '角', '角度'],
-                        'coor': ['coordinate', 'coordinate geometry', 'graph', '坐标', '坐标系'],
-                        'length': ['length', 'distance', 'perimeter', '长度', '距离', '周长'],
-                        '3d': ['3d', 'three dimensional', 'volume', 'solid', '三维', '体积'],
-                        'base': ['base', 'representation', 'number system', '进制', '表示'],
-                        'lcm': ['lcm', 'least common multiple', 'multiple', '最小公倍数'],
-                        'digit': ['digit', 'number', 'representation', '数字', '数位'],
-                        'Markov': ['markov', 'chain', 'probability', 'state', '马尔可夫', '链'],
-                        'Recursion': ['recursion', 'recursive', 'recurrence', '递归', '递推'],
-                        'logic': ['logic', 'logical', 'boolean', '逻辑', '布尔'],
-                        'uniform': ['uniform', 'distribution', 'probability', '均匀', '分布'],
-                        'game': ['game', 'strategy', 'winning', '游戏', '策略'],
-                        'Expectation': ['expectation', 'expected value', 'mean', '期望', '期望值']
-                    }
                     
-                    # 添加映射的关键词
-                    if topic_code in keyword_mapping:
-                        keywords.extend(keyword_mapping[topic_code])
+                    # 添加扩展的关键词映射
+                    if topic_code in self.extended_keyword_mapping:
+                        keywords.extend(self.extended_keyword_mapping[topic_code])
                     
                     topic_dict[topic_code] = keywords
             print(f"✅ 成功从 {filepath} 加载 {len(topic_dict)} 个知识点关键词。")
@@ -83,6 +100,158 @@ class CSVMatcher:
         except Exception as e:
             print(f"❌ 解析映射文件时出错: {e}")
             return {}
+
+    def match_by_knowledge_point_keywords(self, knowledge_point: str, questions_data: List[Dict]) -> List[Dict]:
+        """
+        🆕 新增：基于知识点关键词的直接匹配方法
+        从知识点文本中提取关键词，直接与题目的topic进行匹配
+        """
+        # 1. 从知识点文本中提取关键词
+        extracted_keywords = self._extract_keywords_from_knowledge_point(knowledge_point)
+        
+        if not extracted_keywords:
+            print(f"⚠️ 对于知识点 '{knowledge_point[:30]}...'，未能提取出任何关键词。")
+            return []
+
+        print(f"🔍 从知识点提取的关键词: {extracted_keywords}")
+
+        # 2. 匹配题目
+        matches = []
+        for question in questions_data:
+            question_topic = str(question.get('Topic', '')).lower()
+            question_division = str(question.get('Division', '')).lower()
+            question_text = str(question.get('题目', ''))
+            
+            # 计算匹配分数
+            match_score = self._calculate_keyword_match_score(extracted_keywords, question_topic, question_division, question_text)
+            
+            if match_score > 0:
+                question_with_score = question.copy()
+                question_with_score['match_score'] = match_score
+                question_with_score['extracted_keywords'] = extracted_keywords
+                question_with_score['matched_keywords'] = self._get_matched_keywords(extracted_keywords, question_topic, question_division, question_text)
+                matches.append(question_with_score)
+        
+        # 按匹配分数排序
+        matches.sort(key=lambda x: x['match_score'], reverse=True)
+        return matches
+
+    def _extract_keywords_from_knowledge_point(self, knowledge_point: str) -> List[str]:
+        """
+        🆕 从知识点文本中提取关键词
+        """
+        kp_lower = knowledge_point.lower()
+        extracted_keywords = []
+        
+        # 1. 直接匹配topic_code
+        for topic_code, keywords in self.topic_keywords.items():
+            for keyword in keywords:
+                if keyword.lower() in kp_lower:
+                    extracted_keywords.append(topic_code)
+                    break
+        
+        # 2. 提取中文关键词
+        chinese_keywords = self._extract_chinese_keywords(kp_lower)
+        extracted_keywords.extend(chinese_keywords)
+        
+        # 3. 提取英文关键词
+        english_keywords = self._extract_english_keywords(kp_lower)
+        extracted_keywords.extend(english_keywords)
+        
+        # 去重并返回
+        return list(set(extracted_keywords))
+
+    def _extract_chinese_keywords(self, text: str) -> List[str]:
+        """
+        🆕 提取中文关键词
+        """
+        chinese_keywords = []
+        
+        # 定义中文关键词列表
+        chinese_keyword_list = [
+            '概率', '随机', '期望', '统计', '数据', '分布',
+            '几何', '图形', '面积', '周长', '体积', '三角形', '圆形', '正方形', '矩形',
+            '代数', '函数', '方程', '不等式', '多项式', '数列', '对数', '指数',
+            '数论', '整除', '模运算', '因数', '质数', '合数', '进制', '数字',
+            '计数', '排列', '组合', '递归', '逻辑', '游戏', '策略'
+        ]
+        
+        for keyword in chinese_keyword_list:
+            if keyword in text:
+                chinese_keywords.append(keyword)
+        
+        return chinese_keywords
+
+    def _extract_english_keywords(self, text: str) -> List[str]:
+        """
+        🆕 提取英文关键词
+        """
+        english_keywords = []
+        
+        # 定义英文关键词列表
+        english_keyword_list = [
+            'probability', 'random', 'expectation', 'statistics', 'data', 'distribution',
+            'geometry', 'triangle', 'circle', 'area', 'perimeter', 'volume',
+            'algebra', 'function', 'equation', 'polynomial', 'sequence', 'logarithm', 'exponent',
+            'divisibility', 'modulo', 'factor', 'prime', 'composite', 'base', 'digit',
+            'counting', 'permutation', 'combination', 'recursion', 'logic', 'game', 'strategy'
+        ]
+        
+        for keyword in english_keyword_list:
+            if keyword in text:
+                english_keywords.append(keyword)
+        
+        return english_keywords
+
+    def _calculate_keyword_match_score(self, extracted_keywords: List[str], 
+                                     question_topic: str, question_division: str, 
+                                     question_text: str) -> float:
+        """
+        🆕 计算关键词匹配分数
+        """
+        score = 0.0
+        
+        # 1. Topic匹配（权重最高）
+        for keyword in extracted_keywords:
+            if keyword.lower() in question_topic:
+                score += 10.0  # Topic匹配得10分
+        
+        # 2. Division匹配（权重中等）
+        for keyword in extracted_keywords:
+            if keyword.lower() in question_division:
+                score += 5.0  # Division匹配得5分
+        
+        # 3. 题目文本匹配（权重较低）
+        for keyword in extracted_keywords:
+            if keyword.lower() in question_text.lower():
+                score += 2.0  # 文本匹配得2分
+        
+        # 4. 扩展关键词匹配
+        for keyword in extracted_keywords:
+            if keyword in self.extended_keyword_mapping:
+                for extended_keyword in self.extended_keyword_mapping[keyword]:
+                    if extended_keyword.lower() in question_topic.lower():
+                        score += 8.0  # 扩展关键词Topic匹配得8分
+                    if extended_keyword.lower() in question_text.lower():
+                        score += 3.0  # 扩展关键词文本匹配得3分
+        
+        return score
+
+    def _get_matched_keywords(self, extracted_keywords: List[str], 
+                            question_topic: str, question_division: str, 
+                            question_text: str) -> List[str]:
+        """
+        🆕 获取匹配的关键词列表
+        """
+        matched_keywords = []
+        
+        for keyword in extracted_keywords:
+            if (keyword.lower() in question_topic.lower() or 
+                keyword.lower() in question_division.lower() or 
+                keyword.lower() in question_text.lower()):
+                matched_keywords.append(keyword)
+        
+        return matched_keywords
 
     def match_by_topic_code(self, knowledge_point: str, questions_data: List[Dict]) -> List[Dict]:
         """
@@ -148,6 +317,10 @@ class QuestionMatcher:
     
     def __init__(self):
         self.questions_cache = None
+        # 🆕 新增：CSV匹配器实例
+        self.csv_matcher = CSVMatcher()
+        # 🆕 新增：CSV匹配器实例
+        self.csv_matcher = CSVMatcher()
         
     def load_questions(self) -> pd.DataFrame:
         """加载题目数据"""
@@ -173,6 +346,63 @@ class QuestionMatcher:
             return pd.DataFrame()
         
         return self.questions_cache
+    
+    def find_questions_by_knowledge_point(self, knowledge_point: str, limit: int = 5) -> List[Dict]:
+        """
+        🆕 新增：基于知识点的智能匹配方法
+        结合关键词提取和topic匹配，提供更准确的题目推荐
+        """
+        questions_df = self.load_questions()
+        if questions_df.empty:
+            return []
+        
+        # 转换为字典列表
+        questions_data = questions_df.to_dict('records')
+        
+        # 1. 使用新的关键词匹配方法
+        keyword_matches = self.csv_matcher.match_by_knowledge_point_keywords(knowledge_point, questions_data)
+        
+        # 2. 使用原有的topic code匹配方法
+        topic_matches = self.csv_matcher.match_by_topic_code(knowledge_point, questions_data)
+        
+        # 3. 合并结果并去重
+        all_matches = {}
+        
+        # 添加关键词匹配结果
+        for match in keyword_matches:
+            problem_id = match.get('Problem ID', '')
+            if problem_id not in all_matches:
+                all_matches[problem_id] = match
+            else:
+                # 如果已存在，取更高的分数
+                all_matches[problem_id]['match_score'] = max(
+                    all_matches[problem_id]['match_score'], 
+                    match['match_score']
+                )
+        
+        # 添加topic匹配结果
+        for match in topic_matches:
+            problem_id = match.get('Problem ID', '')
+            if problem_id not in all_matches:
+                all_matches[problem_id] = match
+            else:
+                # 如果已存在，取更高的分数
+                all_matches[problem_id]['match_score'] = max(
+                    all_matches[problem_id]['match_score'], 
+                    match['match_score']
+                )
+        
+        # 转换为列表并排序
+        final_matches = list(all_matches.values())
+        final_matches.sort(key=lambda x: x['match_score'], reverse=True)
+        
+        # 添加匹配信息
+        for match in final_matches:
+            match['knowledge_point'] = knowledge_point
+            match['match_method'] = 'keyword_and_topic'
+            match['relevance_score'] = min(100, match['match_score'] * 10)  # 转换为0-100的分数
+        
+        return final_matches[:limit]
     
     def find_questions_by_topics(self, predicted_topics: List[str], limit: int = 5) -> List[Dict]:
         """
@@ -522,7 +752,8 @@ class QuestionMatcher:
         Returns:
             Dict: 练习推荐结果
         """
-        matched_questions = self.find_questions_by_topics([knowledge_point], limit * 2)
+        # 🆕 使用新的基于知识点的匹配方法
+        matched_questions = self.find_questions_by_knowledge_point(knowledge_point, limit * 2)
         
         # 按练习优先级排序
         matched_questions.sort(key=lambda x: x.get('practice_priority', 0), reverse=True)
