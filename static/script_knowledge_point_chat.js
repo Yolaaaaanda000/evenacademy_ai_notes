@@ -58,7 +58,7 @@ function setupInputEvents() {
     // 字符计数
     chatInput.addEventListener('input', function() {
         const count = this.value.length;
-        charCount.textContent = `${count}/500`;
+        charCount.textContent = `${count}/1000`;
         
         // 更新发送按钮状态
         sendBtn.disabled = count === 0;
@@ -87,7 +87,7 @@ async function sendMessage() {
     
     // 清空输入框
     chatInput.value = '';
-    document.getElementById('char-count').textContent = '0/500';
+    document.getElementById('char-count').textContent = '0/1000';
     document.getElementById('send-btn').disabled = true;
     
     // 显示加载状态
