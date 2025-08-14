@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     processVideoBtn.addEventListener('click', async function() {
         const file = videoFileInput.files[0];
         if (!file) {
-            alert('请先选择视频文件');
+            alert('Please select a video file first');
             return;
         }
 
@@ -408,11 +408,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="knowledge-item-header">
                         <span class="knowledge-time">${startTime}</span>
                         <span class="knowledge-title">${title}</span>
-                        <div class="knowledge-controls">
-                            <button class="timestamp-btn" onclick="jumpToKnowledgePoint(${index})" title="${isEnglish ? 'Jump to timestamp' : '跳转到时间戳'}">
-                                🎬
-                            </button>
-                        </div>
                     </div>
                     <div class="knowledge-description">${description}</div>
                     ${keyPhrase ? `<div class="knowledge-keyphrase"><strong>${isEnglish ? 'Key Content:' : '关键内容:'}</strong> ${keyPhrase}</div>` : ''}
@@ -626,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 筛选功能
     filterBtn.addEventListener('click', function() {
         // 这里可以实现筛选功能，比如按重要性、类别等筛选
-        alert('筛选功能开发中...');
+        alert('Filter feature is under development...');
     });
 
     // 导出笔记 - 修复导出功能
@@ -640,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (currentVideoData && currentVideoData.notes) {
             contentToExport = currentVideoData.notes;
         } else {
-            alert('没有可导出的笔记内容');
+            alert('No notes content available for export');
             return;
         }
 
@@ -660,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = videoTitleDisplay.textContent || 'video';
             downloadFile(timestamps, `${title}_时间戳`, '.txt');
         } else {
-            alert('没有可导出的时间戳');
+            alert('No timestamps available for export');
         }
     });
 
@@ -675,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // 复制链接到剪贴板
             navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('链接已复制到剪贴板');
+                alert('Link copied to clipboard');
             });
         }
     });
@@ -704,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('下载文件时出错:', error);
-                alert('下载失败，请重试');
+                alert('Download failed, please try again');
             });
     }
 
@@ -1188,11 +1183,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                 }
             });
-            console.log('从analysis.content_segments构建映射:', timestampMapping);
+            console.log('Build mapping from analysis.content_segments:', timestampMapping);
         }
         
-        console.log('最终时间戳映射:', timestampMapping);
-        console.log('映射中的键:', Object.keys(timestampMapping));
+        console.log('Final timestamp mapping:', timestampMapping);
+        console.log('Keys in mapping:', Object.keys(timestampMapping));
     }
 
     // 🆕 跳转到概念对应的时间戳
@@ -1200,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Use encodeURIComponent/decodeURIComponent if concepts can have special characters
         const mapping = timestampMapping[concept];
         if (!mapping) {
-            console.error('未找到概念的时间戳映射:', concept);
+            console.error('No timestamp mapping found for concept:', concept);
             return;
         }
         
@@ -1217,10 +1212,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
             
             // 显示提示
-            console.log(`跳转到概念: ${concept}, 时间: ${mapping.start_time}`);
+            console.log(`Jump to concept: ${concept}, time: ${mapping.start_time}`);
 
         } else {
-            console.error('视频播放器未准备好');
+            console.error('Video player not ready');
         }
     }
 
@@ -1305,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 构建知识点数据
             const knowledgePointData = {
                 title: concept,
-                content: `这是关于"${concept}"的知识点内容。该知识点出现在视频的${timestamp}时间点。`,
+                content: `This is the knowledge point content about "${concept}". The knowledge point appears at the ${timestamp} time point in the video.`,
                 timestamp: timestamp,
                 video_title: videoTitle,
                 related_concepts: concept,
@@ -1328,11 +1323,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!newWindow) {
                 console.error('无法打开知识点对话窗口');
-                alert('无法打开知识点对话窗口，请检查浏览器弹窗设置');
+                alert('Unable to open knowledge point dialogue window, please check browser popup settings');
             }
         } catch (error) {
-            console.error('打开知识点对话窗口失败:', error);
-            alert('打开知识点对话窗口失败: ' + error.message);
+            console.error('Failed to open knowledge point dialogue window:', error);
+            alert('Failed to open knowledge point dialogue window: ' + error.message);
         }
     }
 

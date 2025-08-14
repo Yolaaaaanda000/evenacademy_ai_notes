@@ -1,72 +1,72 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>知识点深度对话</title>
+    <title>Knowledge Point Deep Dialogue</title>
     <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style_knowledge_point_chat.css') }}">
 </head>
 <body>
     <div class="knowledge-point-chat-container">
-        <!-- 知识点信息卡片 -->
+        <!-- Knowledge Point Information Card -->
         <div class="knowledge-point-card">
             <div class="card-header">
-                <h2>🎯 知识点深度对话</h2>
+                <h2>🎯 Knowledge Point Deep Dialogue</h2>
                 <button class="close-btn" onclick="closeKnowledgePointChat()">×</button>
             </div>
             <div class="card-content">
                 <div class="knowledge-point-info">
                     <div class="info-row">
-                        <span class="info-label">📚 知识点:</span>
-                        <span class="info-value" id="knowledge-point-title">加载中...</span>
+                        <span class="info-label">📚 Knowledge Point:</span>
+                        <span class="info-value" id="knowledge-point-title">Loading...</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">⏰ 时间戳:</span>
+                        <span class="info-label">⏰ Timestamp:</span>
                         <span class="info-value" id="knowledge-point-timestamp">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">📹 视频:</span>
+                        <span class="info-label">📹 Video:</span>
                         <span class="info-value" id="video-title">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">🔗 相关概念:</span>
+                        <span class="info-label">🔗 Related Concepts:</span>
                         <span class="info-value" id="related-concepts">-</span>
                     </div>
                 </div>
                 <div class="knowledge-point-content" id="knowledge-point-content">
-                    <div class="content-text">加载中...</div>
+                    <div class="content-text">Loading...</div>
                 </div>
             </div>
         </div>
 
-        <!-- 对话区域 -->
+        <!-- Dialogue Area -->
         <div class="chat-section">
-            <!-- 对话状态栏 -->
+            <!-- Dialogue Status Bar -->
             <div class="chat-status-bar">
                 <div class="status-indicators">
                     <div class="status-item">
-                        <span class="status-label">对话轮次:</span>
+                        <span class="status-label">Dialogue Rounds:</span>
                         <span class="status-value" id="dialogue-round">0</span>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">焦点状态:</span>
-                        <span class="status-value" id="focus-status">正常</span>
+                        <span class="status-label">Focus Status:</span>
+                        <span class="status-value" id="focus-status">Normal</span>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">理解进度:</span>
+                        <span class="status-label">Understanding Progress:</span>
                         <div class="progress-bar">
                             <div class="progress-fill" id="understanding-progress" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <button class="action-btn" onclick="resetDialogue()">🔄 重置对话</button>
-                    <button class="action-btn" onclick="backToFocus()">🎯 回到焦点</button>
+                    <button class="action-btn" onclick="resetDialogue()">🔄 Reset Dialogue</button>
+                    <button class="action-btn" onclick="backToFocus()">🎯 Back to Focus</button>
                 </div>
             </div>
 
-            <!-- 对话消息区域 -->
+            <!-- Dialogue Messages Area -->
             <div class="chat-messages" id="chat-messages">
                 <div class="message ai-message">
                     <div class="message-content">
@@ -75,63 +75,59 @@
                             <span class="message-time" id="welcome-time"></span>
                         </div>
                         <div class="message-text">
-                            欢迎来到知识点深度对话！我是你的专业学习助手。
-                            <br><br>我可以帮助你：
-                            <br>• 📖 深入理解这个知识点的核心概念
-                            <br>• 🔍 分析知识点的原理和应用
-                            <br>• 💡 提供相关的学习建议和思考问题
-                            <br>• 🎯 确保对话始终聚焦在这个知识点上
-                            <br><br>请随时向我提问，我会为你提供专业的解答！
+                            Welcome to the Knowledge Point Deep Dialogue! I am your professional learning assistant.
+                            <br><br>I can help you:
+                            <br>• 📖 Deeply understand the core concepts of this knowledge point
+                            <br>• 🔍 Analyze the principles and applications of the knowledge point
+                            <br>• 💡 Provide related learning suggestions and thinking questions
+                            <br>• 🎯 Ensure the dialogue always focuses on this knowledge point
+                            <br><br>Please feel free to ask me questions, and I will provide you with professional answers!
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 建议问题区域 -->
+            <!-- Suggested Questions Area -->
             <div class="suggested-questions" id="suggested-questions">
                 <div class="suggestions-header">
-                    <span>💡 建议问题</span>
+                    <span>💡 Suggested Questions</span>
                     <button class="refresh-suggestions" onclick="refreshSuggestions()">🔄</button>
                 </div>
                 <div class="suggestions-list" id="suggestions-list">
-                    <div class="suggestion-item" onclick="askSuggestion('这个知识点的核心概念是什么？')">
-                        这个知识点的核心概念是什么？
+                    <div class="suggestion-item" onclick="askSuggestion('What is the core concept of this knowledge point?')">
+                        What is the core concept of this knowledge point?
                     </div>
-                    <div class="suggestion-item" onclick="askSuggestion('这个知识点在实际中如何应用？')">
-                        这个知识点在实际中如何应用？
+                    <div class="suggestion-item" onclick="askSuggestion('How is this knowledge point applied in practice?')">
+                        How is this knowledge point applied in practice?
                     </div>
-                    <div class="suggestion-item" onclick="askSuggestion('能给我一个具体的例子吗？')">
-                        能给我一个具体的例子吗？
+                    <div class="suggestion-item" onclick="askSuggestion('What are the key formulas or principles involved?')">
+                        What are the key formulas or principles involved?
+                    </div>
+                    <div class="suggestion-item" onclick="askSuggestion('Can you provide some examples to illustrate this concept?')">
+                        Can you provide some examples to illustrate this concept?
+                    </div>
+                    <div class="suggestion-item" onclick="askSuggestion('What are the common misconceptions about this topic?')">
+                        What are the common misconceptions about this topic?
+                    </div>
+                    <div class="suggestion-item" onclick="askSuggestion('How does this relate to other knowledge points?')">
+                        How does this relate to other knowledge points?
                     </div>
                 </div>
             </div>
 
-            <!-- 输入区域 -->
+            <!-- Input Area -->
             <div class="chat-input-area">
-                <div class="input-container">
-                    <textarea 
-                        id="chat-input" 
-                        placeholder="输入你的问题，我会专注于这个知识点为你解答..." 
-                        rows="3"
-                        maxlength="500"
-                    ></textarea>
-                    <div class="input-actions">
-                        <span class="char-count" id="char-count">0/500</span>
-                        <button class="send-btn" onclick="sendMessage()" id="send-btn">
-                            <span class="send-text">发送</span>
-                            <span class="send-icon">📤</span>
-                        </button>
-                    </div>
+                <textarea 
+                    id="chat-input" 
+                    placeholder="Ask me anything about this knowledge point..." 
+                    rows="3"
+                    maxlength="1000"
+                ></textarea>
+                <div class="input-actions">
+                    <span class="char-count" id="char-count">0/1000</span>
+                    <button id="send-btn" class="send-btn" disabled>Send</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- 加载遮罩 -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <p>AI正在思考中...</p>
         </div>
     </div>
 

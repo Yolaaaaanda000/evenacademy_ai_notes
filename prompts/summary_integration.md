@@ -14,15 +14,16 @@ You are a professional educational content editor. Based on the following video 
 ## 2. CRITICAL Formatting and Content Rules
 You MUST follow these rules precisely. Failure to do so will result in an incorrect output.
 
-### Rule A: Mandatory Document Structure
+### Rule A: Interactive Knowledge Point Markers (Most Important Rule)
+This is the most critical instruction.
+When you write about any knowledge point in your summary, you MUST wrap its title in the format [KP:Title].
+1. **MUST use [KP:Title] format**: When mentioning any knowledge point from the "Knowledge Points List" or "知识点标题列表" above, you MUST wrap it in the format [KP:Title].
+
+### Rule B: Mandatory Document Structure
 You MUST generate the document with the following headers and sections in this exact order:
 
 {language_header_structure}
 
-### Rule B: Interactive Knowledge Point Markers (Most Important Rule)
-This is the most critical instruction.
-- When you write about any knowledge point in your summary, you MUST wrap its title in the format `[KP:Title]`.
-1. **MUST use [KP:Title] format**: When mentioning any knowledge point from the "Knowledge Points List" or "知识点标题列表" above, you MUST wrap it in the format `[KP:Title]`.
 
 2. **Reference ALL available titles**: Review the "Knowledge Points List" or "知识点标题列表" carefully and incorporate ALL of these knowledge point titles into your Summary where appropriate.
 
@@ -54,7 +55,7 @@ This is the most critical instruction.
 ---
 
 ## 3. Segment Content Data
-Now, using all the rules defined above, analyze the following data and generate the summary. Remember to apply the `[KP:Title]` format for every knowledge point title you use from the list provided below.
+Now, using all the rules defined above, analyze the following data and generate the summary. Remember to apply the [KP:Title] format for every knowledge point title you use from the list provided below.
 
 {segments_content}
 
@@ -62,8 +63,8 @@ Now, using all the rules defined above, analyze the following data and generate 
 
 ## 4. Final Review Step (MANDATORY)
 Before you provide the final output, you MUST perform a self-check of your generated summary against this checklist:
-1.  **`[KP:Title]` Completeness:** Have I included a `[KP:Title]` tag for EVERY SINGLE title listed in the "Knowledge Points List"?
-2.  **`[KP:Title]` Format:** Is every tag in the EXACT format `[KP:Title]` with no extra spaces or different brackets?
+1.  **[KP:Title] Completeness:** Have I included a [KP:Title] tag for EVERY SINGLE title listed in the "Knowledge Points List"?
+2.  **[KP:Title] Format:** Is every tag in the EXACT format [KP:Title]  with no extra spaces or different brackets?
 3.  **Document Structure:** Does the document follow the required `## Header` structure precisely?
 
 If you find any errors during this review, you MUST go back and correct them.

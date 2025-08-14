@@ -7,7 +7,7 @@ let dialogueState = {
     focus_deviation_count: 0
 };
 let knowledgePointData = {};
-let currentLanguage = '中文';
+let currentLanguage = 'English';
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -26,11 +26,11 @@ function initializePage() {
             knowledgePointData = JSON.parse(decodeURIComponent(knowledgePointJson));
             displayKnowledgePointInfo();
         } catch (error) {
-            console.error('解析知识点数据失败:', error);
-            showError('加载知识点信息失败');
+                    console.error('Failed to parse knowledge point data:', error);
+        showError('Failed to load knowledge point information');
         }
     } else {
-        showError('未找到知识点信息');
+        showError('Knowledge point information not found');
     }
     
     // 设置输入框事件
@@ -39,14 +39,14 @@ function initializePage() {
 
 // 显示知识点信息
 function displayKnowledgePointInfo() {
-    document.getElementById('knowledge-point-title').textContent = knowledgePointData.title || '未知知识点';
+    document.getElementById('knowledge-point-title').textContent = knowledgePointData.title || 'Unknown Knowledge Point';
     document.getElementById('knowledge-point-timestamp').textContent = knowledgePointData.timestamp || '-';
     document.getElementById('video-title').textContent = knowledgePointData.video_title || '-';
     document.getElementById('related-concepts').textContent = knowledgePointData.related_concepts || '-';
-    document.getElementById('knowledge-point-content').innerHTML = `<div class="content-text">${knowledgePointData.content || '暂无内容'}</div>`;
+    document.getElementById('knowledge-point-content').innerHTML = `<div class="content-text">${knowledgePointData.content || 'No content available'}</div>`;
     
     // 设置语言
-    currentLanguage = knowledgePointData.language || '中文';
+    currentLanguage = knowledgePointData.language || 'English';
 }
 
 // 设置输入框事件
@@ -216,17 +216,17 @@ function askSuggestion(question) {
 function refreshSuggestions() {
     // 这里可以调用API获取新的建议问题
     const defaultSuggestions = [
-        '这个知识点的核心概念是什么？',
-        '这个知识点在实际中如何应用？',
-        '能给我一个具体的例子吗？',
-        '这个知识点与其他概念有什么联系？'
+        'What is the core concept of this knowledge point?',
+        'How is this knowledge point used in real-world applications?',
+        'Can you show me a specific example?',
+        'What are the connections between this knowledge point and other knowledge points?'
     ];
     updateSuggestedQuestions(defaultSuggestions);
 }
 
 // 重置对话
 function resetDialogue() {
-    if (confirm('确定要重置对话吗？这将清空所有对话历史。')) {
+    if (confirm('Are you sure you want to reset the dialogue? This will clear all conversation history.')) {
         dialogueHistory = [];
         dialogueState = {
             round: 0,
@@ -248,7 +248,7 @@ function resetDialogue() {
 
 // 回到焦点
 function backToFocus() {
-    const focusMessage = `让我们回到"${knowledgePointData.title}"这个知识点。请告诉我你想了解这个知识点的哪个方面？`;
+    const focusMessage = `Let's get back to "${knowledgePointData.title}". Please tell me which aspect of this knowledge point you want to know.`;
     addMessageToChat('assistant', focusMessage);
     
     // 更新对话历史
@@ -258,12 +258,12 @@ function backToFocus() {
         timestamp: new Date().toLocaleTimeString()
     });
     
-    showSuccess('已引导回到知识点焦点');
+        showSuccess('You are now back on track with the knowledge point.');
 }
 
 // 关闭知识点对话
 function closeKnowledgePointChat() {
-    if (confirm('确定要关闭知识点对话吗？')) {
+    if (confirm('Are you sure you want to close the knowledge point dialogue?')) {
         window.close();
         // 如果是在iframe中，通知父窗口
         if (window.parent !== window) {

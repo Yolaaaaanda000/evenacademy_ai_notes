@@ -16,7 +16,7 @@ class VideoProcessor:
     def __init__(self, api_key: str):
         """初始化视频处理器"""
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.summary_integrator = SummaryIntegrator(api_key, prompts_dir="./prompts")  # 🆕 优化2: 初始化Summary整合器
 
         # 🆕 初始化Prompt管理器

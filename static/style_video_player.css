@@ -1,4 +1,17 @@
 /* 基础样式 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #02AFB1;
+    --primary-dark: #008A8C;
+    --primary-light: #E6FFFA;
+    --text-dark: #2D3748;
+    --text-light: #5A6A85;
+    --bg-color: #F7FAFC;
+    --card-bg: #FFFFFF;
+    --border-color: #E2E8F0;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,10 +19,10 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--text-dark);
+    background: var(--bg-color);
     min-height: 100vh;
 }
 
@@ -24,17 +37,23 @@ header {
     text-align: center;
     margin-bottom: 30px;
     color: white;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(2, 175, 177, 0.2);
 }
 
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-weight: 700;
+    color: white;
 }
 
 header p {
     font-size: 1.1rem;
     opacity: 0.9;
+    color: white;
 }
 
 /* 导航样式 */
@@ -49,7 +68,7 @@ header p {
     color: white;
     text-decoration: none;
     padding: 10px 20px;
-    border-radius: 25px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
     font-weight: 500;
@@ -67,11 +86,12 @@ header p {
 
 /* 主要内容区域 */
 main {
-    background: white;
-    border-radius: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     margin-bottom: 30px;
+    border: 1px solid var(--border-color);
 }
 
 /* 上传区域 */
@@ -81,22 +101,22 @@ main {
 
 /* 上传区域样式 */
 .upload-container {
-    background: #f8f9fa;
-    border-radius: 15px;
+    background: var(--bg-color);
+    border-radius: 12px;
     padding: 30px;
-    border: 2px dashed #e0e0e0;
+    border: 2px dashed var(--border-color);
     text-align: center;
     max-width: 1950px;
     transition: all 0.3s ease;
 }
 
 .upload-container:hover {
-    border-color: #667eea;
-    background: #f0f4ff;
+    border-color: var(--primary-color);
+    background: #f8fffe;
 }
 
 .upload-container h2 {
-    color: #333;
+    color: var(--text-dark);
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
@@ -117,18 +137,18 @@ main {
 .upload-icon {
     font-size: 3rem;
     margin-bottom: 15px;
-    color: #667eea;
+    color: var(--primary-color);
 }
 
 .upload-label span {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-dark);
     margin-bottom: 10px;
 }
 
 .upload-label small {
-    color: #666;
+    color: var(--text-light);
     font-size: 0.9rem;
 }
 
@@ -149,14 +169,14 @@ main {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--text-dark);
 }
 
 .info-item input,
 .info-item select {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s ease;
@@ -165,16 +185,16 @@ main {
 .info-item input:focus,
 .info-item select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 /* 处理状态 */
 .processing-status {
     text-align: center;
     padding: 60px 40px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 20px;
-    border: 2px solid #e0e0e0;
+    background: var(--bg-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
     margin: 20px 0;
 }
 
@@ -207,7 +227,7 @@ main {
     width: 50px;
     height: 50px;
     border: 5px solid #f3f3f3;
-    border-top: 5px solid #667eea;
+    border-top: 5px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -222,7 +242,7 @@ main {
 .processing-dot {
     width: 12px;
     height: 12px;
-    background: #667eea;
+    background: var(--primary-color);
     border-radius: 50%;
     animation: pulse 1.5s ease-in-out infinite;
 }
@@ -259,16 +279,16 @@ main {
     align-items: center;
     gap: 15px;
     padding: 15px;
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     transition: all 0.3s ease;
 }
 
 .processing-step.active {
-    background: #f0f4ff;
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    background: #f8fffe;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(2, 175, 177, 0.1);
 }
 
 .processing-step.completed {
@@ -293,7 +313,7 @@ main {
 }
 
 .step-icon.active {
-    background: #667eea;
+    background: var(--primary-color);
     animation: pulse 1s ease-in-out infinite;
 }
 
@@ -319,7 +339,7 @@ main {
 .progress-bar {
     width: 100%;
     height: 8px;
-    background: #e0e0e0;
+    background: var(--border-color);
     border-radius: 4px;
     overflow: hidden;
     margin: 20px 0;
@@ -327,20 +347,20 @@ main {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     border-radius: 4px;
     transition: width 0.3s ease;
     width: 0%;
 }
 
 #status-text {
-    color: #666;
+    color: var(--text-light);
     font-size: 1.1rem;
     margin-top: 20px;
 }
 
 .processing-time {
-    color: #999;
+    color: var(--text-light);
     font-size: 0.9rem;
     margin-top: 10px;
 }
@@ -361,10 +381,10 @@ main {
 
 /* 视频面板 */
 .video-panel {
-    background: #f8f9fa;
+    background: var(--bg-color);
     border-radius: 15px;
     padding: 20px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
 }
@@ -377,7 +397,7 @@ main {
 }
 
 .video-header h3 {
-    color: #333;
+    color: var(--text-dark);
     font-size: 1.2rem;
     margin: 0;
 }
@@ -388,7 +408,7 @@ main {
 }
 
 .control-btn {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 8px 12px;
@@ -399,7 +419,7 @@ main {
 }
 
 .control-btn:hover {
-    background: #5a6fd8;
+    background: var(--primary-dark);
     transform: translateY(-1px);
 }
 
@@ -430,18 +450,18 @@ main {
     gap: 10px;
     font-family: monospace;
     font-size: 1rem;
-    color: #666;
+    color: var(--text-light);
     padding: 10px;
-    background: #f0f0f0;
+    background: var(--border-color);
     border-radius: 8px;
 }
 
 /* 知识点面板 */
 .knowledge-panel {
-    background: #f8f9fa;
+    background: var(--bg-color);
     border-radius: 15px;
     padding: 20px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
 }
@@ -454,7 +474,7 @@ main {
 }
 
 .panel-header h3 {
-    color: #333;
+    color: var(--text-dark);
     font-size: 1.2rem;
     margin: 0;
 }
@@ -479,8 +499,8 @@ main {
 }
 
 .knowledge-item {
-    background: white;
-    border: 1px solid #e0e0e0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 10px;
@@ -490,16 +510,16 @@ main {
 }
 
 .knowledge-item:hover {
-    background: #f0f4ff;
-    border-color: #667eea;
+    background: #f8fffe;
+    border-color: var(--primary-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(2, 175, 177, 0.1);
 }
 
 .knowledge-item.active {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 .knowledge-item-header {
@@ -518,7 +538,7 @@ main {
 
 /* 🆕 知识点控制按钮美化样式 */
 .knowledge-controls .timestamp-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
     border: none;
     padding: 8px 16px;
@@ -527,7 +547,7 @@ main {
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(2, 175, 177, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -548,9 +568,9 @@ main {
 }
 
 .knowledge-controls .timestamp-btn:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4c93 100%);
+    background: linear-gradient(90deg, var(--primary-dark), #006666);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(2, 175, 177, 0.4);
 }
 
 /* 激活状态下的按钮样式 */
@@ -615,7 +635,7 @@ main {
 /* 按钮焦点状态 */
 .knowledge-controls .timestamp-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 0 3px rgba(2, 175, 177, 0.3);
 }
 
 /* 按钮禁用状态 */
@@ -676,7 +696,7 @@ main {
 
 .knowledge-time {
     font-weight: 600;
-    color: #667eea;
+    color: var(--primary-color);
     font-family: monospace;
     font-size: 0.9rem;
 }
@@ -687,7 +707,7 @@ main {
 
 .knowledge-title {
     font-weight: 600;
-    color: #333;
+    color: var(--text-dark);
     font-size: 1rem;
 }
 
@@ -696,7 +716,7 @@ main {
 }
 
 .knowledge-description {
-    color: #666;
+    color: var(--text-light);
     font-size: 0.85rem;
     line-height: 1.4;
     margin-bottom: 8px;
@@ -709,11 +729,11 @@ main {
 .knowledge-keyphrase {
     margin: 8px 0;
     padding: 8px 12px;
-    background: #f8f9fa;
-    border-left: 3px solid #667eea;
+    background: var(--bg-color);
+    border-left: 3px solid var(--primary-color);
     border-radius: 4px;
     font-size: 0.85rem;
-    color: #495057;
+    color: var(--text-dark);
     line-height: 1.4;
 }
 
@@ -727,7 +747,7 @@ main {
     display: flex;
     gap: 15px;
     font-size: 0.8rem;
-    color: #999;
+    color: var(--text-light);
 }
 
 .knowledge-item.active .knowledge-meta {
@@ -735,17 +755,17 @@ main {
 }
 
 .importance-high {
-    color: #dc3545;
+    color: #e53e3e;
     font-weight: 600;
 }
 
 .importance-medium {
-    color: #ffc107;
+    color: #d69e2e;
     font-weight: 600;
 }
 
 .importance-low {
-    color: #28a745;
+    color: var(--primary-color);
     font-weight: 600;
 }
 
@@ -757,8 +777,8 @@ main {
 
 /* 摘要区域 - 优化显示 */
 .knowledge-summary {
-    background: white;
-    border: 1px solid #e0e0e0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 20px;
     flex-shrink: 0;
@@ -766,16 +786,16 @@ main {
 }
 
 .knowledge-summary h4 {
-    color: #333;
+    color: var(--text-dark);
     margin-bottom: 15px;
     font-size: 1.1rem;
     font-weight: 600;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 8px;
 }
 
 .summary-content {
-    color: #555;
+    color: var(--text-light);
     font-size: 0.9rem;
     line-height: 1.6;
     max-height: 300px;
@@ -783,48 +803,48 @@ main {
 }
 
 .summary-content h1 {
-    color: #333;
+    color: var(--text-dark);
     font-size: 1.3rem;
     margin: 20px 0 10px 0;
     font-weight: 600;
 }
 
 .summary-content h2 {
-    color: #444;
+    color: var(--text-dark);
     font-size: 1.2rem;
     margin: 18px 0 8px 0;
     font-weight: 600;
 }
 
 .summary-content h3 {
-    color: #555;
+    color: var(--text-dark);
     font-size: 1.1rem;
     margin: 15px 0 8px 0;
     font-weight: 600;
 }
 
 .summary-content strong {
-    color: #333;
+    color: var(--text-dark);
     font-weight: 600;
 }
 
 .summary-content em {
-    color: #666;
+    color: var(--text-light);
     font-style: italic;
 }
 
 .summary-content .timestamp-link {
-    color: #667eea;
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: 600;
     padding: 2px 6px;
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(2, 175, 177, 0.1);
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 .summary-content .timestamp-link:hover {
-    background: rgba(102, 126, 234, 0.2);
+    background: rgba(2, 175, 177, 0.2);
     transform: translateY(-1px);
 }
 
@@ -832,9 +852,9 @@ main {
 .bottom-actions {
     margin-top: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--bg-color);
     border-radius: 10px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
 }
 
 .action-buttons {
@@ -846,9 +866,9 @@ main {
 
 .secondary-btn {
     padding: 12px 24px;
-    border: 2px solid #4299e1;
-    background: white;
-    color: #4299e1;
+    border: 2px solid var(--primary-color);
+    background: var(--card-bg);
+    color: var(--primary-color);
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
@@ -857,10 +877,10 @@ main {
 }
 
 .secondary-btn:hover {
-    background: #4299e1;
+    background: var(--primary-color);
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+    box-shadow: 0 4px 12px rgba(2, 175, 177, 0.3);
 }
 
 
@@ -869,17 +889,18 @@ main {
 .ai-dialogue-section {
     margin-top: 20px;
     margin-bottom: 60px;
-    background: white;
-    border-radius: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     max-width: 1950px;
     margin-left: auto;
     margin-right: auto;
+    border: 1px solid var(--border-color);
 }
 
 .dialogue-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
     padding: 15px 20px;
     display: flex;
@@ -953,15 +974,15 @@ main {
 }
 
 .user-message .message-content {
-    background: #4299e1;
+    background: var(--primary-color);
     color: white;
     border-bottom-right-radius: 4px;
 }
 
 .ai-message .message-content {
-    background: #f8f9fa;
-    color: #333;
-    border: 1px solid #e9ecef;
+    background: var(--bg-color);
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
     border-bottom-left-radius: 4px;
 }
 
@@ -988,7 +1009,7 @@ main {
 }
 
 .dialogue-input-area {
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--border-color);
     padding-top: 15px;
 }
 
@@ -1000,7 +1021,7 @@ main {
 #dialogue-input {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 20px;
     resize: vertical;
@@ -1012,8 +1033,8 @@ main {
 
 #dialogue-input:focus {
     outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(2, 175, 177, 0.1);
 }
 
 .input-actions {
@@ -1025,11 +1046,11 @@ main {
 
 .char-count {
     font-size: 12px;
-    color: #6c757d;
+    color: var(--text-light);
 }
 
 .send-btn {
-    background: #4299e1;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -1041,12 +1062,12 @@ main {
 }
 
 .send-btn:hover:not(:disabled) {
-    background: #3182ce;
+    background: var(--primary-dark);
     transform: translateY(-1px);
 }
 
 .send-btn:disabled {
-    background: #cbd5e0;
+    background: var(--border-color);
     cursor: not-allowed;
     transform: none;
 }
@@ -1058,9 +1079,9 @@ main {
 }
 
 .quick-btn {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    color: #495057;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
@@ -1070,8 +1091,8 @@ main {
 }
 
 .quick-btn:hover {
-    background: #e9ecef;
-    border-color: #dee2e6;
+    background: #f8fffe;
+    border-color: var(--primary-color);
     transform: translateY(-1px);
 }
 
@@ -1116,7 +1137,7 @@ main {
 
 /* 按钮样式 */
 .primary-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
     border: none;
     padding: 15px 40px;
@@ -1124,13 +1145,13 @@ main {
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(2, 175, 177, 0.4);
     font-weight: 600;
 }
 
 .primary-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 8px 25px rgba(2, 175, 177, 0.6);
 }
 
 .primary-btn:disabled {
@@ -1141,17 +1162,18 @@ main {
 
 /* 页脚 */
 footer {
-    background: white;
-    border-radius: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     max-width: 1950px;
     margin-left: auto;
     margin-right: auto;
+    border: 1px solid var(--border-color);
 }
 
 .feature-info h3 {
-    color: #333;
+    color: var(--text-dark);
     margin-bottom: 20px;
     text-align: center;
     font-size: 1.3rem;
@@ -1166,10 +1188,10 @@ footer {
 }
 
 .feature-card {
-    background: #f8f9fa;
+    background: var(--bg-color);
     border-radius: 12px;
     padding: 20px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     transition: transform 0.3s ease;
     text-align: center;
 }
@@ -1179,19 +1201,19 @@ footer {
 }
 
 .feature-card h4 {
-    color: #333;
+    color: var(--text-dark);
     margin-bottom: 10px;
     font-size: 1.1rem;
 }
 
 .feature-card p {
-    color: #666;
+    color: var(--text-light);
     margin-bottom: 15px;
     line-height: 1.5;
 }
 
 .feature-tag {
-    background: #667eea;
+    background: #02AFB1;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
@@ -1305,7 +1327,7 @@ footer {
 
 /* 🆕 通用时间戳跳转按钮样式（用于其他地方的按钮） */
 .timestamp-btn {
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 6px 12px;
@@ -1318,9 +1340,9 @@ footer {
 }
 
 .timestamp-btn:hover {
-    background: #5a6fd8;
+    background: var(--primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(2, 175, 177, 0.3);
 }
 
 .knowledge-item.active .timestamp-btn {
@@ -1425,7 +1447,7 @@ footer {
 /* 🆕 可点击的知识点样式 */
 .clickable-concept {
     display: inline-block;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
     padding: 2px 6px;
     border-radius: 4px;
@@ -1440,8 +1462,8 @@ footer {
 
 .clickable-concept:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    box-shadow: 0 2px 8px rgba(2, 175, 177, 0.4);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
 }
 
 .clickable-concept::after {
@@ -1541,7 +1563,7 @@ footer {
     justify-content: space-between;
     align-items: center;
     padding: 20px 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
     border-radius: 15px 15px 0 0;
 }
@@ -1611,7 +1633,7 @@ footer {
 }
 
 .knowledge-point {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
 }
 
@@ -1634,7 +1656,7 @@ footer {
     padding: 8px 15px;
     border: none;
     border-radius: 8px;
-    background: #667eea;
+    background: var(--primary-color);
     color: white;
     cursor: pointer;
     font-size: 0.9rem;
@@ -1642,7 +1664,7 @@ footer {
 }
 
 .question-controls .control-btn:hover {
-    background: #5a6fd8;
+    background: var(--primary-dark);
     transform: translateY(-2px);
 }
 
@@ -1654,14 +1676,14 @@ footer {
 }
 
 .question-text {
-    background: white;
+    background: var(--card-bg);
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #333;
-    border-left: 5px solid #667eea;
+    color: var(--text-dark);
+    border-left: 5px solid var(--primary-color);
 }
 
 .question-options {
@@ -1671,9 +1693,9 @@ footer {
 }
 
 .option-item {
-    background: white;
+    background: var(--card-bg);
     padding: 15px 20px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
@@ -1683,14 +1705,14 @@ footer {
 }
 
 .option-item:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: var(--primary-color);
+    background: #f8fffe;
     transform: translateX(5px);
 }
 
 .option-item.selected {
-    border-color: #667eea;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
 }
 
@@ -1711,7 +1733,7 @@ footer {
 .answer-input {
     flex: 1;
     padding: 12px 20px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s;
@@ -1719,12 +1741,12 @@ footer {
 
 .answer-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--primary-color);
 }
 
 .submit-btn {
     padding: 12px 25px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
     border: none;
     border-radius: 8px;
@@ -1736,7 +1758,7 @@ footer {
 
 .submit-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(2, 175, 177, 0.4);
 }
 
 /* 右侧对话面板 */
@@ -1749,9 +1771,9 @@ footer {
 
 .dialogue-header {
     padding: 20px 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .dialogue-header h4 {
@@ -1775,7 +1797,7 @@ footer {
     flex: 1;
     overflow-y: auto;
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--bg-color);
     border-radius: 10px;
     margin-bottom: 20px;
     max-height: 400px;
@@ -1790,21 +1812,21 @@ footer {
 }
 
 .dialogue-message.ai {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
     margin-right: auto;
 }
 
 .dialogue-message.user {
-    background: #e3f2fd;
-    color: #1976d2;
+    background: #f8fffe;
+    color: var(--primary-dark);
     margin-left: auto;
     text-align: right;
 }
 
 .dialogue-message.system {
-    background: #f5f5f5;
-    color: #666;
+    background: var(--bg-color);
+    color: var(--text-light);
     margin: 10px auto;
     text-align: center;
     font-style: italic;
@@ -1832,7 +1854,7 @@ footer {
 }
 
 .action-btn:last-child {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
     color: white;
 }
 

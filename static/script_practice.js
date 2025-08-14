@@ -65,8 +65,8 @@ async function loadPracticeQuestions() {
             showNoQuestions();
         }
     } catch (error) {
-        console.error('加载题目失败:', error);
-        showError('加载题目失败');
+        console.error('Failed to load questions:', error);
+        showError('Failed to load questions');
     }
 }
 
@@ -85,19 +85,19 @@ function displayPracticeQuestion(question) {
     const difficultyElement = document.getElementById('question-difficulty');
     const relevanceElement = document.getElementById('question-relevance');
     
-    const difficultyText = question.difficulty_level ? `Level ${question.difficulty_level} (${question.difficulty || '未知'})` : question.difficulty || '未知';
-    const relevanceText = question.relevance_score ? `${Math.round(question.relevance_score)}% 相关` : question.expected_match || '未知';
+    const difficultyText = question.difficulty_level ? `Level ${question.difficulty_level} (${question.difficulty || 'Unknown'})` : question.difficulty || 'Unknown';
+    const relevanceText = question.relevance_score ? `${Math.round(question.relevance_score)}% relevant` : question.expected_match || 'Unknown';
     
     difficultyElement.textContent = difficultyText;
     relevanceElement.textContent = relevanceText;
     
     questionContent.innerHTML = `
-        <div class="question-header"><h4>${question.title || '题目'}</h4></div>
-        <div class="question-text">${question.question_text || '题目内容加载中...'}</div>
+        <div class="question-header"><h4>${question.title || 'Question'}</h4></div>
+        <div class="question-text">${question.question_text || 'Loading question content...'}</div>
         <div class="question-options">${generateOptions(question)}</div>
         <div class="question-actions">
-            <button class="submit-btn" onclick="submitPracticeAnswer()">提交答案</button>
-            <button class="next-btn" onclick="loadNextPracticeQuestion()">跳过，下一题</button>
+            <button class="submit-btn" onclick="submitPracticeAnswer()">Submit Answer</button>
+            <button class="next-btn" onclick="loadNextPracticeQuestion()">Skip, Next Question</button>
         </div>
     `;
     
@@ -126,12 +126,12 @@ function bindOptionEvents() {
 function submitPracticeAnswer() {
     const selectedOption = document.querySelector('.option.selected');
     if (!selectedOption) {
-        addPracticeChatMessage('ai', '请先选择一个答案，然后再提交哦。');
+        addPracticeChatMessage('ai', 'Please select an answer first, then submit.');
         return;
     }
     
     const selectedValue = selectedOption.dataset.option;
-    addPracticeChatMessage('user', `我选择了答案: ${selectedValue}`);
+    addPracticeChatMessage('user', `I selected answer: ${selectedValue}`);
     analyzeAnswer(selectedValue); // 直接调用分析函数
 }
 
@@ -140,10 +140,10 @@ function analyzeAnswer(selectedAnswer) {
     const isCorrect = selectedAnswer === currentQuestion.answer;
     
     if (isCorrect) {
-        addPracticeChatMessage('ai', '✅ 回答正确！非常棒！');
+            addPracticeChatMessage('ai', '✅ You are correct! Great job!');
         // 答对了，延迟2秒后自动进入下一题
         setTimeout(() => {
-            addPracticeChatMessage('ai', '正在为你加载下一题...');
+            addPracticeChatMessage('ai', 'Loading next question...');
             loadNextPracticeQuestion();
         }, 2000);
     } else {
@@ -152,11 +152,11 @@ function analyzeAnswer(selectedAnswer) {
         if (wrongAnswerCounter < 3) {
             // 第1、2次答错
             const attemptsLeft = 3 - wrongAnswerCounter;
-            addPracticeChatMessage('ai', `❌ 答案不正确，请再思考一下哦。你还有 ${attemptsLeft} 次机会😉`);
+            addPracticeChatMessage('ai', `❌ The answer is incorrect. Please think again. You have ${attemptsLeft} more attempts 😉`);
         } else {
             // 第3次答错，调用LLM获取提示
-            addPracticeChatMessage('ai', '🤔 看来这道题有点难度，别担心，我让AI老师来给你一个提示。');
-            const specialPrompt = "我在这道题上已经连续答错了3次，请给我一个引导性的提示，但不要直接告诉我正确答案是什么。";
+            addPracticeChatMessage('ai', '🤔 This question seems a bit challenging. Don\'t worry, I\'ll let the AI teacher give you a hint.');
+            const specialPrompt = "I have answered this question incorrectly 3 times in a row. Please give me a guiding hint, but do not tell me the correct answer directly.";
             generateAIResponse(specialPrompt);
         }
     }
@@ -175,8 +175,8 @@ function loadNextPracticeQuestion() {
 // 完成所有练习
 function finishPractice() {
     document.getElementById('question-content').innerHTML = `
-        <div class="no-questions"><h4>🎉 恭喜你完成了所有题目！</h4></div>`;
-    addPracticeChatMessage('ai', '📊 练习总结：\n• 总题数：' + questions.length + '\n• 知识点：' + currentKnowledgePoint + '\n• 建议：继续巩固相关知识点');
+        <div class="no-questions"><h4>🎉 Congratulations on completing all questions!</h4></div>`;
+    addPracticeChatMessage('ai', '📊 Practice summary:\n• Total questions: ' + questions.length + '\n• Knowledge point: ' + currentKnowledgePoint + '\n• Suggestion: Continue to strengthen related knowledge points');
 }
 
 // 发送聊天消息
@@ -192,7 +192,7 @@ function sendPracticeMessage() {
 
 // 生成AI回复 (调用后端)
 async function generateAIResponse(userMessage) {
-    addPracticeChatMessage('ai', '🤔 正在思考中...');
+    addPracticeChatMessage('ai', '🤔 Thinking...');
     const messagesContainer = document.getElementById('chat-messages');
     const loadingMessage = messagesContainer.lastElementChild; // 获取“正在思考”那条消息
 
@@ -213,12 +213,12 @@ async function generateAIResponse(userMessage) {
         if (data.success) {
             addPracticeChatMessage('ai', data.llm_response);
         } else {
-            addPracticeChatMessage('ai', '抱歉，我暂时无法回复，请稍后再试。');
+            addPracticeChatMessage('ai', 'Sorry, I cannot reply at the moment. Please try again later.');
         }
     } catch (error) {
-        console.error('调用LLM接口失败:', error);
+        console.error('Failed to call LLM interface:', error);
         if (loadingMessage) messagesContainer.removeChild(loadingMessage); // 移除“正在思考”
-        addPracticeChatMessage('ai', '抱歉，网络连接出现问题，请稍后再试。');
+        addPracticeChatMessage('ai', 'Sorry, there is a problem with the network connection. Please try again later.');
     }
 }
 
@@ -233,11 +233,11 @@ function addPracticeChatMessage(type, content) {
 }
 
 function showNoQuestions() {
-    document.getElementById('question-content').innerHTML = `<div class="no-questions"><h4>暂无相关题目</h4><p>当前知识点暂时没有匹配的练习题。</p></div>`;
+    document.getElementById('question-content').innerHTML = `<div class="no-questions"><h4>No related questions</h4><p>There are no matching practice questions for the current knowledge point.</p></div>`;
 }
 
 function showError(message) {
-    document.getElementById('question-content').innerHTML = `<div class="error"><h4>加载失败</h4><p>${message}</p><button onclick="loadPracticeQuestions()">重试</button></div>`;
+    document.getElementById('question-content').innerHTML = `<div class="error"><h4>Failed to load</h4><p>${message}</p><button onclick="loadPracticeQuestions()">Retry</button></div>`;
 }
 
 // 将需要从HTML调用的函数暴露到全局

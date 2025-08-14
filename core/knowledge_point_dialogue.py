@@ -17,7 +17,7 @@ class KnowledgePointDialogueHandler:
     def __init__(self):
         """初始化知识点对话处理器"""
         # 主程序已经设置了环境变量，这里直接使用
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.prompt_template = self._load_knowledge_point_prompt()
     
     def _load_knowledge_point_prompt(self) -> str:

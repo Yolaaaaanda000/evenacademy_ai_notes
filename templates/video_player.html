@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>视频学习平台 - 知识点标签</title>
+    <title>Video Learning Platform - Knowledge Point Tags</title>
     <link rel="stylesheet" href="/static/style_video_player.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -11,47 +11,47 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎥 视频学习平台</h1>
-            <p>智能识别知识点，实时同步时间戳</p>
+            <h1>🎥 Video Learning Platform</h1>
+            <p>Intelligent knowledge point recognition with real-time timestamp synchronization</p>
             <nav class="main-nav">
-                <a href="/" class="nav-link active">🎬 视频学习</a>
+                <a href="/" class="nav-link active">🎬 Video Learning</a>
             </nav>
         </header>
         
         <main>
-            <!-- 视频上传区域 -->
+            <!-- Video Upload Section -->
             <div id="upload-section" class="upload-section">
                 <div class="upload-container">
-                    <h2>📁 上传视频文件</h2>
+                    <h2>📁 Upload Video File</h2>
                     <div class="upload-area">
                         <label for="video-file" class="upload-label">
                             <div class="upload-icon">📁</div>
-                            <span>点击选择视频文件</span>
-                            <small>支持 MP4, MOV, AVI, MKV 格式</small>
+                            <span>Click to select video file</span>
+                            <small>Supports MP4, MOV, AVI, MKV formats</small>
                         </label>
                         <input type="file" id="video-file" name="video_file" accept=".mp4,.mov,.avi,.mkv" hidden>
                     </div>
                     
                     <div class="video-info" id="video-info" style="display: none;">
                         <div class="info-item">
-                            <label for="video-title">视频标题:</label>
-                            <input type="text" id="video-title" name="title" placeholder="例如: 数学课程 - 线性代数基础">
+                            <label for="video-title">Video Title:</label>
+                            <input type="text" id="video-title" name="title" placeholder="e.g., Math Course - Linear Algebra Basics">
                         </div>
                         <div class="info-item">
-                            <label for="video-language">输出语言:</label>
+                            <label for="video-language">Output Language:</label>
                             <select id="video-language" name="language">
-                                <option value="中文" selected>中文</option>
-                                <option value="English">English</option>
+                                <option value="English" selected>English</option>
+                                <option value="中文">Chinese</option>
                             </select>
                         </div>
-                        <button id="process-video-btn" class="primary-btn">🚀 开始分析视频</button>
+                        <button id="process-video-btn" class="primary-btn">🚀 Start Video Analysis</button>
                     </div>
                 </div>
                 
                 <div id="processing-status" class="processing-status" style="display: none;">
                     <div class="processing-header">
-                        <h3 class="processing-title">🎬 正在分析视频内容</h3>
-                        <p class="processing-subtitle">AI正在智能识别视频中的知识点，请稍候...</p>
+                        <h3 class="processing-title">🎬 Analyzing Video Content</h3>
+                        <p class="processing-subtitle">AI is intelligently identifying knowledge points in the video, please wait...</p>
                     </div>
                     
                     <div class="processing-animation">
@@ -71,35 +71,35 @@
                         <div class="processing-step" data-step="transcribe">
                             <div class="step-icon pending">1</div>
                             <div class="step-content">
-                                <div class="step-title">语音转录</div>
-                                <div class="step-description">正在将视频音频转换为文字...</div>
+                                <div class="step-title">Speech Transcription</div>
+                                <div class="step-description">Converting video audio to text...</div>
                             </div>
                         </div>
                         <div class="processing-step" data-step="analyze">
                             <div class="step-icon pending">2</div>
                             <div class="step-content">
-                                <div class="step-title">内容分析</div>
-                                <div class="step-description">AI正在识别重要知识点和内容片段...</div>
+                                <div class="step-title">Content Analysis</div>
+                                <div class="step-description">AI is identifying important knowledge points and content segments...</div>
                             </div>
                         </div>
                         <div class="processing-step" data-step="timestamp">
                             <div class="step-icon pending">3</div>
                             <div class="step-content">
-                                <div class="step-title">精确匹配时间戳</div>
-                                <div class="step-description">正在基于关键句子精确定位时间...</div>
+                                <div class="step-title">Precise Timestamp Matching</div>
+                                <div class="step-description">Precisely locating time based on key sentences...</div>
                             </div>
                         </div>
                         <div class="processing-step" data-step="generate">
                             <div class="step-icon pending">4</div>
                             <div class="step-content">
-                                <div class="step-title">生成笔记</div>
-                                <div class="step-description">正在生成结构化笔记...</div>
+                                <div class="step-title">Generate Notes</div>
+                                <div class="step-description">Generating structured notes...</div>
                             </div>
                         </div>
                     </div>
                     
-                    <p id="status-text">正在处理中，请耐心等待...</p>
-                    <p class="processing-time" id="processing-time">已用时: 0秒</p>
+                    <p id="status-text">Processing, please wait patiently...</p>
+                    <p class="processing-time" id="processing-time">Time used: 0 seconds</p>
                 </div>
             </div>
             
@@ -109,15 +109,15 @@
                     <!-- 左侧视频播放器 -->
                     <div class="video-panel">
                         <div class="video-header">
-                            <h3 id="video-title-display">视频标题</h3>
+                            <h3 id="video-title-display">Video Title</h3>
                             <div class="video-controls">
-                                <button id="fullscreen-btn" class="control-btn" title="全屏">⛶</button>
+                                <button id="fullscreen-btn" class="control-btn" title="Fullscreen">⛶</button>
                             </div>
                         </div>
                         <div class="video-wrapper">
                             <video id="video-player" controls>
                                 <source id="video-source" src="" type="video/mp4">
-                                您的浏览器不支持视频播放。
+                                Your browser does not support video playback.
                             </video>
                         </div>
                         <div class="video-info-bar">
@@ -130,12 +130,12 @@
                    <!-- 右侧知识点面板 - 增强版本 -->
                     <div class="knowledge-panel">
                         <div class="panel-header">
-                            <h3 id="panel-title">🎯 知识点标签</h3>
+                            <h3 id="panel-title">🎯 Knowledge Point Tags</h3>
                                                     <div class="panel-controls">
-                            <button id="auto-scroll-btn" class="control-btn active" title="自动滚动">📌</button>
+                            <button id="auto-scroll-btn" class="control-btn active" title="Auto Scroll">📌</button>
                             <!-- 🆕 添加视图切换按钮 -->
-                            <button id="view-toggle-btn" class="control-btn" title="切换到Summary视图">📚</button>
-                            <button id="filter-btn" class="control-btn" title="筛选">🔍</button>
+                            <button id="view-toggle-btn" class="control-btn" title="Switch to Summary View">📚</button>
+                            <button id="filter-btn" class="control-btn" title="Filter">🔍</button>
                         </div>
                         </div>
                         
@@ -147,7 +147,7 @@
                                 </div>
                                 
                                 <div id="knowledge-summary" class="knowledge-summary">
-                                    <h4 id="summary-title">📋 内容摘要</h4>
+                                    <h4 id="summary-title">📋 Content Summary</h4>
                                     <div id="summary-content" class="summary-content">
                                         <!-- 现有的摘要内容 -->
                                     </div>
@@ -158,16 +158,16 @@
                             <div id="summary-detail-view" class="view-content" style="display: none;">
                                 <div class="summary-header">
                                     <div class="summary-stats">
-                                        <span>📊 <span id="concept-count-summary">0</span><span id="concept-count-text">个知识点</span></span>
+                                        <span>�� <span id="concept-count-summary">0</span><span id="concept-count-text"> knowledge points</span></span>
                                         <span>⏱️ <span id="video-duration-summary">00:00</span></span>
-                                        <span>🎯 <span id="difficulty-level">中等</span></span>
+                                        <span>🎯 <span id="difficulty-level">Medium</span></span>
                                     </div>
                                 </div>
                                 
                                 <div class="detailed-summary-content" id="detailed-summary-content">
                                     <!-- 详细Summary内容将在这里显示 -->
                                     <div class="empty-summary">
-                                        <p id="empty-summary-text">📤 处理视频后将显示完整的课程Summary</p>
+                                        <p id="empty-summary-text">📤 The complete course summary will be displayed after processing the video</p>
                                     </div>
                                 </div>
                             </div>
@@ -177,9 +177,9 @@
                 <!-- 底部操作区域 -->
                 <div class="bottom-actions">
                     <div class="action-buttons">
-                        <button id="export-notes-btn" class="secondary-btn">📝 导出笔记</button>
-                        <button id="export-timestamps-btn" class="secondary-btn">⏰ 导出时间戳</button>
-                        <button id="share-btn" class="secondary-btn">📤 分享</button>
+                        <button id="export-notes-btn" class="secondary-btn">📝 Export Notes</button>
+                        <button id="export-timestamps-btn" class="secondary-btn">⏰ Export Timestamps</button>
+                        <button id="share-btn" class="secondary-btn">📤 Share</button>
                     </div>
                 </div>
             </div>
@@ -192,10 +192,10 @@
         <!-- 🆕 AI对话区域 - 与页面宽度一致 -->
         <div class="ai-dialogue-section">
             <div class="dialogue-header">
-                <h3>🤖 AI学习助手</h3>
+                <h3>🤖 AI Learning Assistant</h3>
                 <div class="dialogue-controls">
-                    <button id="toggle-dialogue-btn" class="control-btn" title="展开/收起对话框">💬</button>
-                    <button id="clear-dialogue-btn" class="control-btn" title="清空对话">🗑️</button>
+                    <button id="toggle-dialogue-btn" class="control-btn" title="Expand/Collapse Dialogue Box">💬</button>
+                    <button id="clear-dialogue-btn" class="control-btn" title="Clear Chat">🗑️</button>
                 </div>
             </div>
             
@@ -205,14 +205,14 @@
                         <div class="message-content">
                             <div class="message-header">
                                 <span class="ai-avatar">🤖</span>
-                                <span class="message-time" id="current-time-display">刚刚</span>
+                                <span class="message-time" id="current-time-display">Just now</span>
                             </div>
                             <div class="message-text">
-                                你好！我是你的AI学习助手。我可以帮助你：
-                                <br>• 解释视频中的知识点
-                                <br>• 回答关于课程内容的问题
-                                <br>• 提供学习建议和复习指导
-                                <br><br>请告诉我你想了解什么？
+                                Hello! I am your AI learning assistant. I can help you:
+                                <br>• Explain knowledge points in the video
+                                <br>• Answer questions about the course content
+                                <br>• Provide learning suggestions and review guidance
+                                <br><br>Please tell me what you want to know?
                             </div>
                         </div>
                     </div>
@@ -222,59 +222,59 @@
                     <div class="input-container">
                         <textarea 
                             id="dialogue-input" 
-                            placeholder="输入你的问题或想法..." 
+                            placeholder="Enter your question or idea..." 
                             rows="3"
                             maxlength="500"
                         ></textarea>
                         <div class="input-actions">
                             <span class="char-count" id="char-count">0/500</span>
-                            <button id="send-dialogue-btn" class="send-btn" disabled>发送</button>
+                            <button id="send-dialogue-btn" class="send-btn" disabled>Send</button>
                         </div>
                     </div>
                     <div class="quick-actions">
-                        <button class="quick-btn" onclick="askQuestion('explain')">📚 解释知识点</button>
-                        <button class="quick-btn" onclick="askQuestion('summary')">📋 总结要点</button>
-                        <button class="quick-btn" onclick="askQuestion('practice')">🎯 生成练习</button>
-                        <button class="quick-btn" onclick="askQuestion('review')">🔄 复习建议</button>
+                        <button class="quick-btn" onclick="askQuestion('explain')">📚 Explain Knowledge Points</button>
+                        <button class="quick-btn" onclick="askQuestion('summary')">📋 Summarize Key Points</button>
+                        <button class="quick-btn" onclick="askQuestion('practice')">🎯 Generate Exercises</button>
+                        <button class="quick-btn" onclick="askQuestion('review')">🔄 Review Suggestions</button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <footer>
+        <!-- <footer>
             <div class="feature-info">
-                <h3>✨ 功能特色</h3>
+                <h3>✨ Feature Highlights</h3>
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <h4>🎯 智能识别</h4>
-                        <p>AI自动识别视频中的关键知识点</p>
-                        <span class="feature-tag">AI驱动</span>
+                        <h4>🎯 Intelligent Recognition</h4>
+                        <p>AI automatically identifies key knowledge points in the video</p>
+                        <span class="feature-tag">AI-Driven</span>
                     </div>
                     <div class="feature-card">
-                        <h4>⏰ 精确时间戳</h4>
-                        <p>精确定位知识点在视频中的时间位置</p>
-                        <span class="feature-tag">精准定位</span>
+                        <h4>⏰ Precise Timestamps</h4>
+                        <p>Accurately locates the time position of knowledge points in the video</p>
+                        <span class="feature-tag">Accurate Location</span>
                     </div>
                     <div class="feature-card">
-                        <h4>🔄 实时同步</h4>
-                        <p>视频播放时自动高亮当前知识点</p>
-                        <span class="feature-tag">实时交互</span>
+                        <h4>🔄 Knowledge Point Exercises</h4>
+                        <p>Accurately provides exercise questions to strengthen understanding</p>
+                        <span class="feature-tag">Knowledge Point Smart Push</span>
                     </div>
                     <div class="feature-card">
-                        <h4>📱 响应式设计</h4>
-                        <p>支持各种设备，移动端友好</p>
-                        <span class="feature-tag">多端适配</span>
+                        <h4>📱 Guided Explanations</h4>
+                        <p>Guided explanations of knowledge points to deepen understanding</p>
+                        <span class="feature-tag">Guided Explanations</span>
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer> -->
     </div>
     
     <!-- 🆕 题目弹窗 -->
     <div id="question-dialogue-modal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
             <div class="modal-header">
-                <h3>🎯 智能学习助手</h3>
+                <h3>🎯 Intelligent Learning Assistant</h3>
                 <button class="close-btn" onclick="closeQuestionDialogue()">×</button>
             </div>
             
@@ -283,13 +283,13 @@
                 <div class="question-panel">
                     <div class="question-header">
                         <div class="question-meta">
-                            <span class="knowledge-point" id="question-knowledge-point">知识点: 概率论</span>
-                            <span class="difficulty" id="question-difficulty">难度: 中等</span>
-                            <span class="question-number" id="question-number">题号: #001</span>
+                            <span class="knowledge-point" id="question-knowledge-point">Knowledge Point: Probability Theory</span>
+                            <span class="difficulty" id="question-difficulty">Difficulty: Medium</span>
+                            <span class="question-number" id="question-number">Question No: #001</span>
                         </div>
                         <div class="question-controls">
-                            <button class="control-btn" onclick="getHint()" title="获取提示">💡 提示</button>
-                            <button class="control-btn" onclick="loadNextQuestion()" title="下一题">⏭️ 下一题</button>
+                            <button class="control-btn" onclick="getHint()" title="Get Hint">💡 Hint</button>
+                            <button class="control-btn" onclick="loadNextQuestion()" title="Next Question">⏭️ Next Question</button>
                         </div>
                     </div>
                     
@@ -303,8 +303,8 @@
                         </div>
                         
                         <div class="answer-input-section">
-                            <input type="text" id="answer-input" placeholder="请输入你的答案 (A/B/C/D/E)" class="answer-input">
-                            <button id="submit-answer-btn" class="submit-btn">📤 提交答案</button>
+                            <input type="text" id="answer-input" placeholder="Enter your answer (A/B/C/D/E)" class="answer-input">
+                            <button id="submit-answer-btn" class="submit-btn">📤 Submit Answer</button>
                         </div>
                     </div>
                 </div>
@@ -312,8 +312,8 @@
                 <!-- 右侧对话窗口 -->
                 <div class="dialogue-panel">
                     <div class="dialogue-header">
-                        <h4>🤖 AI学习助手</h4>
-                        <div class="dialogue-status" id="dialogue-status">准备开始学习...</div>
+                        <h4>🤖 AI Learning Assistant</h4>
+                        <div class="dialogue-status" id="dialogue-status">Preparing to start learning...</div>
                     </div>
                     
                     <div class="dialogue-content">
@@ -322,8 +322,8 @@
                         </div>
                         
                         <div class="dialogue-actions">
-                            <button id="finish-dialogue-btn" class="action-btn" style="display: none;">✅ 完成学习</button>
-                            <button id="next-question-btn" class="action-btn" style="display: none;">⏭️ 下一题</button>
+                            <button id="finish-dialogue-btn" class="action-btn" style="display: none;">✅ Finish Learning</button>
+                            <button id="next-question-btn" class="action-btn" style="display: none;">⏭️ Next Question</button>
                         </div>
                     </div>
                 </div>
