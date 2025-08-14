@@ -80,8 +80,10 @@ header p {
 }
 
 .nav-link.active {
-    background: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: #F7FAFC;
+    color: var(--primary-dark);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
 }
 
 /* 主要内容区域 */
@@ -377,16 +379,21 @@ main {
     min-height: 700px;
     max-width: 1800px;
     margin: 0 auto;
+    background: var(--bg-color);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 /* 视频面板 */
 .video-panel {
-    background: var(--bg-color);
+    background: white;
     border-radius: 15px;
     padding: 20px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .video-header {
@@ -458,12 +465,13 @@ main {
 
 /* 知识点面板 */
 .knowledge-panel {
-    background: var(--bg-color);
+    background: white;
     border-radius: 15px;
     padding: 20px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .panel-header {
@@ -851,10 +859,14 @@ main {
 /* 底部操作区域 */
 .bottom-actions {
     margin-top: 20px;
+    margin-bottom: 20px;
     padding: 20px;
     background: var(--bg-color);
     border-radius: 10px;
     border: 1px solid var(--border-color);
+    max-width: 1950px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .action-buttons {
