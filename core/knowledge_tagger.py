@@ -240,25 +240,25 @@ class KnowledgeTagger:
             session['questions'].append({
                 'id': f"q_{i+1:03d}",
                 'problem_id': question.get('Problem ID', ''),
-                'title': question.get('formatted_title', ''),
-                'question_text': question.get('question_text', ''),
-                'topics': question.get('topics', ''),
+                'title': f"{question.get('年份', '')} {question.get('竞赛类别', '')} Problem {question.get('题号', '')}",
+                'question_text': question.get('题目', ''),
+                'topics': question.get('Topic', ''),
                 'difficulty': self._estimate_difficulty(question),
                 'difficulty_level': question.get('difficulty_level', 3),
                 'relevance_score': question.get('relevance_score', 0),
                 'practice_priority': question.get('practice_priority', 5),
                 'expected_match': question.get('expected_match', 'MEDIUM'),
                 'recommended_order': question.get('recommended_order', 'standard'),
-                # 🆕 添加缺失的关键字段
-                'answer': question.get('answer', ''),
-                'explanation': question.get('explanation', ''),
-                'hint': question.get('hint', ''),
-                # 🆕 添加选项字段
-                'optionA': question.get('optionA', ''),
-                'optionB': question.get('optionB', ''),
-                'optionC': question.get('optionC', ''),
-                'optionD': question.get('optionD', ''),
-                'optionE': question.get('optionE', '')
+                # 🆕 修复字段映射
+                'answer': question.get('答案', ''),
+                'explanation': question.get('解题思路', ''),
+                'hint': question.get('提示', ''),
+                # 🆕 修复选项字段映射
+                'optionA': question.get('选项A', ''),
+                'optionB': question.get('选项B', ''),
+                'optionC': question.get('选项C', ''),
+                'optionD': question.get('选项D', ''),
+                'optionE': question.get('选项E', '')
             })
         
         return session

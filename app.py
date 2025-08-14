@@ -189,8 +189,9 @@ def get_practice_session(knowledge_point):
         
         tagger = KnowledgeTagger()
         
-        matched_questions = tagger.question_matcher.find_questions_by_topics(
-            predicted_topics=[knowledge_point], 
+        # 🆕 使用新的基于知识点的匹配方法
+        matched_questions = tagger.question_matcher.find_questions_by_knowledge_point(
+            knowledge_point=knowledge_point, 
             limit=limit
         )
         
