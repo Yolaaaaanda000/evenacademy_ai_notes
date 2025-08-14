@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 更新知识点数量文本
         const conceptCountText = document.getElementById('concept-count-text');
         if (conceptCountText) {
-            conceptCountText.textContent = isEnglish ? '🎯 knowledge points' : '个知识点';
+            conceptCountText.textContent = isEnglish ? 'knowledge points' : '个知识点';
         }
         
         // 更新空摘要文本
