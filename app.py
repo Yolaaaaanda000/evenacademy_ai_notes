@@ -7,7 +7,7 @@ import google.generativeai as genai
 from datetime import datetime
 from core.video_processor import VideoProcessor
 from core.knowledge_tagger import KnowledgeTagger
-from core.practice_llm_handler import PracticeLLMHandler
+from core.practice_tutor_handler import PracticeLLMHandler
 from core.ai_dialogue_handler import handle_ai_dialogue_request
 from core.knowledge_point_dialogue import handle_knowledge_point_dialogue_request
 
