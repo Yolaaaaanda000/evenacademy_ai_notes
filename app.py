@@ -60,7 +60,7 @@ def process_video():
         return jsonify({"error": "未选择视频文件"}), 400
     
     lecture_title = request.form.get('title', 'Untitled Video')
-    language = request.form.get('language', '中文')
+    language = request.form.get('language', 'English')
     output_type = request.form.get('output_type', 'notes')
     
     # 检查文件格式
@@ -230,7 +230,7 @@ def chat_for_practice():
 
         # LLM处理
         knowledge_point = question.get('knowledge_point', '未知知识点') 
-        language = question.get('language', '中文') 
+        language = question.get('language', 'English') 
                 
         llm_reply = practice_handler.generate_response(
             knowledge_point, question, user_message_raw, language
@@ -279,7 +279,7 @@ def chat_for_knowledge_point():
         knowledge_point_data = data.get('knowledge_point_data', {})
         dialogue_history = data.get('dialogue_history', [])
         dialogue_state = data.get('dialogue_state')
-        language = data.get('language', '中文')
+        language = data.get('language', 'English')
         
         request_data = {
             'knowledge_point_data': knowledge_point_data,

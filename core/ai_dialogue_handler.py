@@ -88,7 +88,7 @@ Please provide helpful answers based on the video content and the student's spec
 4. Encourage deep thinking
 5. Use friendly and understandable language
 
-Please respond in Chinese.
+Please respond in English.
             """,
             
             'summary': """
@@ -111,7 +111,7 @@ Please provide professional, accurate, and helpful answers based on the summary 
 4. Encourage deep thinking
 5. Reference specific knowledge points when possible
 
-Please respond in Chinese.
+Please respond in English.
             """,
             
             'practice': """
@@ -133,7 +133,7 @@ Please provide helpful answers based on the practice content and the student's s
 4. Give improvement suggestions
 5. Use encouraging language
 
-Please respond in Chinese.
+Please respond in English.
             """,
             
             'knowledge_graph': """
@@ -156,7 +156,7 @@ Please provide helpful answers based on the knowledge graph content and the stud
 4. Encourage exploration
 5. Use clear language
 
-Please respond in Chinese.
+Please respond in English.
             """
         }
     

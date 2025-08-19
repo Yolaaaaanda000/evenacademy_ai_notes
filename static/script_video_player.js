@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 生成知识点列表
     function generateKnowledgePointsList() {
         // 获取当前选择的语言
-        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const currentLanguage = document.getElementById('video-language')?.value || 'English';
         const isEnglish = currentLanguage.toLowerCase() === 'english';
         
         if (!knowledgePoints || knowledgePoints.length === 0) {
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 🆕 更新页面语言显示
     function updatePageLanguage() {
-        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const currentLanguage = document.getElementById('video-language')?.value || 'English';
         const isEnglish = currentLanguage.toLowerCase() === 'english';
         
         // 更新面板标题
@@ -845,8 +845,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 获取当前语言
         function getCurrentLanguage() {
-            return document.getElementById('video-language')?.value || '中文';
-        }
+        return document.getElementById('video-language')?.value || 'English';
+    }
 
         // 视图切换按钮事件
         viewToggleBtn.addEventListener('click', function() {
@@ -880,7 +880,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('生成摘要，接收到的summary:', summary);
 
         // 获取当前语言
-        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const currentLanguage = document.getElementById('video-language')?.value || 'English';
         const isEnglish = currentLanguage.toLowerCase() === 'english';
 
         // 更新原有的简单摘要区域 (assuming 'summaryContent' is for a brief summary now)
@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!detailedSummaryContent) return; // Guard clause
 
         // 获取当前语言
-        const currentLanguage = document.getElementById('video-language')?.value || '中文';
+        const currentLanguage = document.getElementById('video-language')?.value || 'English';
         const isEnglish = currentLanguage.toLowerCase() === 'english';
 
         if (!summary || summary.trim() === '') {
@@ -1267,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 timestamp: timestamp,
                 video_title: videoTitle,
                 related_concepts: concept,
-                language: '中文'
+                language: 'English'
             };
             
             // 计算适中大小的窗口

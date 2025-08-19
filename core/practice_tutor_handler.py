@@ -11,7 +11,7 @@ class PracticeLLMHandler:
         初始化处理器，加载prompt模板。
         """
         self.prompt_template = self._load_prompt_template(prompt_template_path)
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     def _load_prompt_template(self, filepath: str) -> str:
         """
@@ -27,7 +27,7 @@ class PracticeLLMHandler:
             print(f"❌ 错误: 读取Prompt模板文件时出错: {e}")
             return "错误：无法加载Prompt模板。"
 
-    def generate_response(self, knowledge_point: str, question: Dict, user_message: str, language: str = '中文') -> str:
+    def generate_response(self, knowledge_point: str, question: Dict, user_message: str, language: str = 'English') -> str:
         """
         根据题目信息和用户消息，生成LLM的回复。
         
@@ -35,7 +35,7 @@ class PracticeLLMHandler:
             knowledge_point: 知识点名称
             question: 题目信息字典
             user_message: 用户消息
-            language: 回复语言，默认为中文
+            language: 回复语言，默认为英文
         """
         if "错误" in self.prompt_template:
             return self.prompt_template

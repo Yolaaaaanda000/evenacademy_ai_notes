@@ -117,7 +117,7 @@ Please start responding:
         user_message: str,
         dialogue_history: List[Dict[str, Any]] = None,
         dialogue_state: Dict[str, Any] = None,
-        language: str = '中文'
+        language: str = 'English'
     ) -> str:
         """
         生成知识点专用对话回复
@@ -260,7 +260,7 @@ def handle_knowledge_point_dialogue_request(request_data: Dict[str, Any]) -> Dic
         dialogue_state = request_data.get('dialogue_state')
         
         # 生成回复
-        language = request_data.get('language', '中文')
+        language = request_data.get('language', 'English')
         response = handler.generate_response(
             knowledge_point_data=knowledge_point_data,
             user_message=user_message,
