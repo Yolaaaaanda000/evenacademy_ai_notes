@@ -90,8 +90,8 @@ async function sendMessage() {
     document.getElementById('char-count').textContent = '0/1000';
     document.getElementById('send-btn').disabled = true;
     
-    // 显示加载状态
-    showLoading(true);
+    // 显示AI思考中的对话消息
+    const thinkingMessageId = addThinkingMessage();
     
     try {
         // 准备请求数据
@@ -113,6 +113,9 @@ async function sendMessage() {
         });
         
         const result = await response.json();
+        
+        // 移除思考中的消息
+        removeThinkingMessage(thinkingMessageId);
         
         if (result.success) {
             // 添加AI回复到界面
@@ -147,9 +150,9 @@ async function sendMessage() {
         
     } catch (error) {
         console.error('发送消息失败:', error);
+        // 移除思考中的消息
+        removeThinkingMessage(thinkingMessageId);
         showError('网络错误，请稍后重试');
-    } finally {
-        showLoading(false);
     }
 }
 
@@ -175,6 +178,35 @@ function addMessageToChat(role, content) {
     
     // 滚动到底部
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 添加AI思考中的消息
+function addThinkingMessage() {
+    const chatMessages = document.getElementById('chat-messages');
+    const thinkingMessageDiv = document.createElement('div');
+    const messageId = 'thinking-message-' + Date.now();
+    thinkingMessageDiv.id = messageId;
+    thinkingMessageDiv.className = 'message ai-message thinking-message';
+    thinkingMessageDiv.innerHTML = `
+        <div class="message-content">
+            <div class="message-header">
+                <span class="ai-avatar">🤔</span>
+                <span class="message-time">${new Date().toLocaleTimeString()}</span>
+            </div>
+            <div class="message-text">AI tutor is thinking...</div>
+        </div>
+    `;
+    chatMessages.appendChild(thinkingMessageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return messageId;
+}
+
+// 移除AI思考中的消息
+function removeThinkingMessage(messageId) {
+    const messageDiv = document.getElementById(messageId);
+    if (messageDiv) {
+        messageDiv.remove();
+    }
 }
 
 // 更新状态栏
