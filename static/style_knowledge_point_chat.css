@@ -254,6 +254,81 @@ body {
     white-space: pre-wrap;
 }
 
+/* 消息交互按钮样式 */
+.message-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 28px;
+}
+
+.action-btn:hover {
+    background: var(--bg-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.action-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.action-icon {
+    font-size: 12px;
+    line-height: 1;
+}
+
+/* 特定按钮样式 */
+.like-btn.active {
+    background: #38a169;
+    border-color: #38a169;
+}
+
+.dislike-btn.active {
+    background: #e53e3e;
+    border-color: #e53e3e;
+}
+
+.copy-btn:hover {
+    background: #4299e1;
+    color: white;
+    border-color: #4299e1;
+}
+
+.refresh-btn:hover {
+    background: #ed8936;
+    color: white;
+    border-color: #ed8936;
+}
+
 /* 思考中的消息样式 */
 .thinking-message .message-content {
     background: var(--bg-color);

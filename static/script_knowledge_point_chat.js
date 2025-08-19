@@ -164,6 +164,24 @@ function addMessageToChat(role, content) {
     
     const currentTime = new Date().toLocaleTimeString();
     
+    // 为AI消息添加交互按钮
+    const interactionButtons = role === 'assistant' ? `
+        <div class="message-actions">
+            <button class="action-btn like-btn" onclick="likeMessage(this)" title="支持">
+                <span class="action-icon">▲</span>
+            </button>
+            <button class="action-btn dislike-btn" onclick="dislikeMessage(this)" title="反对">
+                <span class="action-icon">▼</span>
+            </button>
+            <button class="action-btn copy-btn" onclick="copyMessage(this)" title="复制">
+                <span class="action-icon">📋</span>
+            </button>
+            <button class="action-btn refresh-btn" onclick="refreshMessage(this)" title="重新生成">
+                <span class="action-icon">🔄</span>
+            </button>
+        </div>
+    ` : '';
+    
     messageDiv.innerHTML = `
         <div class="message-content">
             <div class="message-header">
@@ -171,6 +189,7 @@ function addMessageToChat(role, content) {
                 <span class="message-time">${currentTime}</span>
             </div>
             <div class="message-text">${content}</div>
+            ${interactionButtons}
         </div>
     `;
     
@@ -357,4 +376,153 @@ window.addEventListener('message', function(event) {
     if (event.data.type === 'close_knowledge_point_chat') {
         window.close();
     }
-}); 
+});
+
+// 交互按钮功能函数
+
+// 支持/点赞消息
+function likeMessage(button) {
+    const messageDiv = button.closest('.message');
+    const likeBtn = messageDiv.querySelector('.like-btn');
+    const dislikeBtn = messageDiv.querySelector('.dislike-btn');
+    
+    // 切换点赞状态
+    if (likeBtn.classList.contains('active')) {
+        likeBtn.classList.remove('active');
+    } else {
+        likeBtn.classList.add('active');
+        dislikeBtn.classList.remove('active');
+    }
+    
+    // 这里可以添加发送反馈到后端的逻辑
+    console.log('User liked the AI reply');
+}
+
+// 反对/踩消息
+function dislikeMessage(button) {
+    const messageDiv = button.closest('.message');
+    const likeBtn = messageDiv.querySelector('.like-btn');
+    const dislikeBtn = messageDiv.querySelector('.dislike-btn');
+    
+    // 切换反对状态
+    if (dislikeBtn.classList.contains('active')) {
+        dislikeBtn.classList.remove('active');
+    } else {
+        dislikeBtn.classList.add('active');
+        likeBtn.classList.remove('active');
+    }
+    
+    // 这里可以添加发送反馈到后端的逻辑
+    console.log('User disliked the AI reply');
+}
+
+// 复制消息内容
+function copyMessage(button) {
+    const messageDiv = button.closest('.message');
+    const messageText = messageDiv.querySelector('.message-text').textContent;
+    
+    navigator.clipboard.writeText(messageText).then(() => {
+        // 显示复制成功提示
+        const copyBtn = messageDiv.querySelector('.copy-btn');
+        const originalIcon = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<span class="action-icon">✅</span>';
+        copyBtn.title = 'Copied';
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = originalIcon;
+            copyBtn.title = 'Copy';
+        }, 2000);
+        
+        console.log('Message copied to clipboard');
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Copy failed, please copy manually');
+    });
+}
+
+// 重新生成消息
+async function refreshMessage(button) {
+    const messageDiv = button.closest('.message');
+    const messageText = messageDiv.querySelector('.message-text').textContent;
+    
+    // 显示重新生成中的状态
+    const refreshBtn = messageDiv.querySelector('.refresh-btn');
+    const originalIcon = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<span class="action-icon">⏳</span>';
+    refreshBtn.disabled = true;
+    refreshBtn.title = 'Regenerating...';
+    
+    try {
+        // 找到对应的用户消息（通常是AI消息的前一条）
+        const messages = document.querySelectorAll('.message');
+        let userMessage = null;
+        let userMessageIndex = -1;
+        
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i] === messageDiv) {
+                userMessageIndex = i - 1;
+                break;
+            }
+        }
+        
+        if (userMessageIndex >= 0 && messages[userMessageIndex].classList.contains('user-message')) {
+            userMessage = messages[userMessageIndex].querySelector('.message-text').textContent;
+        }
+        
+        if (!userMessage) {
+            throw new Error('Cannot find the corresponding user message');
+        }
+        
+        // 准备请求数据
+        const requestData = {
+            message: userMessage,
+            knowledge_point_data: knowledgePointData,
+            dialogue_history: dialogueHistory.slice(0, -2), // 移除最后一条AI回复
+            dialogue_state: dialogueState,
+            language: currentLanguage
+        };
+        
+        // 发送API请求
+        const response = await fetch('/chat_for_knowledge_point', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // 更新消息内容
+            messageDiv.querySelector('.message-text').innerHTML = result.response;
+            
+            // 更新对话历史
+            dialogueHistory.pop(); // 移除旧的AI回复
+            dialogueHistory.push({
+                role: 'assistant',
+                content: result.response,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            // 更新对话状态
+            if (result.dialogue_state) {
+                dialogueState = result.dialogue_state;
+                updateStatusBar();
+            }
+            
+            console.log('Message regenerated');
+        } else {
+            throw new Error(result.error || 'Regeneration failed');
+        }
+        
+    } catch (error) {
+        console.error('Regeneration failed:', error);
+        alert('Regeneration failed: ' + error.message);
+    } finally {
+        // 恢复按钮状态
+        refreshBtn.innerHTML = originalIcon;
+        refreshBtn.disabled = false;
+        refreshBtn.title = 'Regenerate';
+    }
+} 
