@@ -1,5 +1,19 @@
 // 知识点对话页面JavaScript
 
+// Markdown渲染配置
+marked.setOptions({
+    highlight: function(code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return hljs.highlight(code, { language: lang }).value;
+            } catch (err) {}
+        }
+        return hljs.highlightAuto(code).value;
+    },
+    breaks: true,
+    gfm: true
+});
+
 // 全局变量
 let dialogueHistory = [];
 let dialogueState = {
@@ -182,13 +196,16 @@ function addMessageToChat(role, content) {
         </div>
     ` : '';
     
+    // 对AI消息进行Markdown渲染
+    const renderedContent = role === 'assistant' ? marked.parse(content) : content;
+    
     messageDiv.innerHTML = `
         <div class="message-content">
             <div class="message-header">
                 ${role === 'assistant' ? '<span class="ai-avatar">🤖</span>' : ''}
                 <span class="message-time">${currentTime}</span>
             </div>
-            <div class="message-text">${content}</div>
+            <div class="message-text markdown-content">${renderedContent}</div>
             ${interactionButtons}
         </div>
     `;
@@ -419,7 +436,8 @@ function dislikeMessage(button) {
 // 复制消息内容
 function copyMessage(button) {
     const messageDiv = button.closest('.message');
-    const messageText = messageDiv.querySelector('.message-text').textContent;
+    // 获取原始文本内容，而不是HTML
+    const messageText = messageDiv.querySelector('.message-text').textContent || messageDiv.querySelector('.message-text').innerText;
     
     navigator.clipboard.writeText(messageText).then(() => {
         // 显示复制成功提示
@@ -494,8 +512,9 @@ async function refreshMessage(button) {
         const result = await response.json();
         
         if (result.success) {
-            // 更新消息内容
-            messageDiv.querySelector('.message-text').innerHTML = result.response;
+            // 更新消息内容，使用Markdown渲染
+            const renderedContent = marked.parse(result.response);
+            messageDiv.querySelector('.message-text').innerHTML = renderedContent;
             
             // 更新对话历史
             dialogueHistory.pop(); // 移除旧的AI回复
