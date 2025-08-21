@@ -3,7 +3,11 @@
   "builds": [
     {
       "src": "app.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
+      }
     }
   ],
   "routes": [
@@ -11,5 +15,20 @@
       "src": "/(.*)",
       "dest": "app.py"
     }
-  ]
+  ],
+
+  "build": {
+    "env": {
+      "PIP_REQUIREMENTS_FILE": "requirements.txt"
+    }
+  },
+  "functions": {
+    "app.py": {
+      "runtime": "python3.12",
+      "includeFiles": "prompts/**"
+    }
+  },
+  "systemDependencies": {
+    "ffmpeg": "latest"
+  }
 }
