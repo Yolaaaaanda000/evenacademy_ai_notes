@@ -1,0 +1,1 @@
+# evenacademy_ai_notes
