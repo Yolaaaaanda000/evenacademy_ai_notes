@@ -19,18 +19,14 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Virtual environments
+# Virtual Environment
 venv/
 env/
 ENV/
-env.bak/
-venv.bak/
 
 # Environment variables
 .env
-.venv
 llm.env
 
 # IDE
@@ -38,32 +34,23 @@ llm.env
 .idea/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
-logs/
-
-# Cache
-data/cache/
-*.cache
-
-# Uploads
-uploads/
-*.mp4
-*.avi
-*.mov
-*.mkv
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Uploads
+uploads/
+
+# Cache
+data/cache/
+
+# Test files
+测试/ 

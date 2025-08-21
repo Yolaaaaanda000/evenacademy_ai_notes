@@ -17,16 +17,19 @@ NEW_PROCESSOR = True
 # 加载环境变量
 load_dotenv('llm.env')
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-os.environ['https_proxy'] = "http://127.0.0.1:8118"
-os.environ['http_proxy'] = "http://127.0.0.1:8118"
-os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
 
-
+# 移除本地代理设置，适配Vercel部署
+# os.environ['https_proxy'] = "http://127.0.0.1:8118"
+# os.environ['http_proxy'] = "http://127.0.0.1:8118"
+# os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
 
 app = Flask(__name__)
 
 # 初始化LLM练习处理器
 practice_handler = PracticeLLMHandler(prompt_template_path='prompts/practice_tutor_prompt.md')
+
+# Vercel部署配置
+MAX_FILE_SIZE = 4 * 1024 * 1024  # 4MB限制
 
 @app.route('/', methods=['GET'])
 def index():
@@ -58,6 +61,16 @@ def process_video():
     video_file = request.files['video_file']
     if video_file.filename == '':
         return jsonify({"error": "未选择视频文件"}), 400
+    
+    # Vercel文件大小检查
+    video_file.seek(0, 2)  # 移动到文件末尾
+    file_size = video_file.tell()
+    video_file.seek(0)  # 重置到文件开头
+    
+    if file_size > MAX_FILE_SIZE:
+        return jsonify({
+            "error": f"文件大小超过限制。最大允许: {MAX_FILE_SIZE // (1024*1024)}MB，当前文件: {file_size // (1024*1024)}MB"
+        }), 400
     
     lecture_title = request.form.get('title', 'Untitled Video')
     language = request.form.get('language', 'English')
@@ -304,4 +317,6 @@ if __name__ == '__main__':
     print(f"📊 视频处理器版本: {'新版本(支持缓存+整合Summary)' if NEW_PROCESSOR else '旧版本(兼容模式)'}")
     print(f"🤖 AI对话处理器: 已集成统一对话处理模块")
     
-    app.run(debug=True, port=5012) 
+    # 适配Vercel部署
+    port = int(os.environ.get('PORT', 5012))
+    app.run(host='0.0.0.0', port=port) 
