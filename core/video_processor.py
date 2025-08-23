@@ -906,9 +906,58 @@ class VideoProcessor:
             
             # 生成Summary
             print("🔄 正在生成Summary...")
-            summary_result = self.summary_integrator.generate_summary(
-                analysis, transcription, lecture_title, language
-            )
+            try:
+                summary_result = self.summary_integrator.generate_summary(
+                    analysis, transcription, lecture_title, language
+                )
+                
+                # 检查summary_result是否包含错误
+                if "error" in summary_result:
+                    print(f"⚠️ Summary生成失败: {summary_result['error']}")
+                    # 使用默认的Summary
+                    integrated_summary = f"视频内容总结：\n\n这是一个关于{lecture_title}的视频。由于技术原因，无法生成详细的AI总结。\n\n视频包含以下内容片段：\n"
+                    
+                    # 从analysis.content_segments生成简单的总结
+                    if 'content_segments' in analysis:
+                        for i, segment in enumerate(analysis['content_segments']):
+                            integrated_summary += f"{i+1}. {segment.get('title', '未知片段')}\n"
+                    
+                    integrated_summary += "\n请查看下方的知识点列表获取详细信息。"
+                    
+                    timestamp_mapping = {}
+                    knowledge_points = []
+                else:
+                    integrated_summary = summary_result["summary"]
+                    timestamp_mapping = summary_result["timestamp_mapping"]
+                    knowledge_points = summary_result["knowledge_points"]
+                    
+                    # 如果knowledge_points为空，尝试从analysis.content_segments获取
+                    if not knowledge_points and 'content_segments' in analysis:
+                        print("🔄 从analysis.content_segments转换为knowledge_points...")
+                        knowledge_points = []
+                        for segment in analysis['content_segments']:
+                            kp = {
+                                'title': segment.get('title', ''),
+                                'description': segment.get('description', ''),
+                                'start_time': segment.get('start_time', '00:00:00'),
+                                'end_time': segment.get('end_time', '00:00:00'),
+                                'key_phrase': segment.get('key_phrase', ''),
+                                'importance': segment.get('importance', 'medium'),
+                                'category': segment.get('category', '概念'),
+                                'difficulty': segment.get('difficulty', '基础'),
+                                'start_seconds': segment.get('start_seconds', 0),
+                                'end_seconds': segment.get('end_seconds', 0),
+                                'duration_seconds': segment.get('duration_seconds', 0)
+                            }
+                            knowledge_points.append(kp)
+                        print(f"✅ 转换了 {len(knowledge_points)} 个知识点")
+                    
+            except Exception as e:
+                print(f"❌ Summary生成异常: {e}")
+                # 使用默认的Summary
+                integrated_summary = f"视频内容总结：\n\n这是一个关于{lecture_title}的视频。由于技术原因，无法生成详细的AI总结。\n\n请查看下方的知识点列表获取详细信息。"
+                timestamp_mapping = {}
+                knowledge_points = []
             
             end_time = datetime.now()
             processing_time = (end_time - start_time).total_seconds()
@@ -924,16 +973,21 @@ class VideoProcessor:
                 "summary_with_timestamps": "缓存模式：带时间戳的分段摘要功能暂未实现",
                 
                 # 新增整合Summary相关字段
-                "integrated_summary": summary_result["summary"],
-                "timestamp_mapping": summary_result["timestamp_mapping"],
-                "knowledge_points": summary_result["knowledge_points"],
+                "integrated_summary": integrated_summary,
+                "timestamp_mapping": timestamp_mapping,
+                "knowledge_points": knowledge_points,
                 "summary_statistics": self.summary_integrator.get_summary_statistics(),
                 
                 # 缓存模式特有字段
                 "cache_used": True,
                 "cache_file": os.path.basename(selected_cache),
                 "processor_version": "cache_only",
-                "processing_mode": "cache_only"
+                "processing_mode": "cache_only",
+                
+                # 添加前端期望的字段
+                "lecture_title": lecture_title,
+                "language": language,
+                "processing_log": self.processing_log
             }
             
         except Exception as e:
