@@ -13,8 +13,10 @@ from core.prompt_manager import PromptManager  # 🆕 添加PromptManager导入
 
 
 class VideoProcessor:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, cache_only_mode=False):
         """初始化视频处理器"""
+        self.cache_only_mode = cache_only_mode
+        
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-2.5-pro')
         self.summary_integrator = SummaryIntegrator(api_key, prompts_dir="./prompts")  # 🆕 优化2: 初始化Summary整合器
@@ -639,6 +641,12 @@ class VideoProcessor:
         print("🚀 开始视频处理流程...")
         print(f"视频: {video_path}")
         print(f"标题: {lecture_title}")
+        print(f"缓存模式: {'启用' if self.cache_only_mode else '禁用'}")
+        
+        # 🆕 缓存模式：直接使用预处理的缓存数据
+        if self.cache_only_mode:
+            print("🔧 缓存模式：跳过视频处理，直接加载缓存数据")
+            return self._process_from_cache_only(lecture_title, language)
         
         # 🆕 优化6: 尝试从缓存加载转录和分析结果
         cached_result = self._load_analysis_cache(video_path, lecture_title)
@@ -844,3 +852,92 @@ class VideoProcessor:
             "video_analysis_info": self.prompt_manager.get_prompt_info("video_analysis"),
             "prompts_directory": self.prompt_manager.prompts_dir
         }
+    
+    # 🆕 新增：缓存模式处理方法
+    def _process_from_cache_only(self, lecture_title: str, language: str = "中文") -> Dict:
+        """缓存模式：直接使用预处理的缓存数据生成Summary"""
+        from datetime import datetime
+        start_time = datetime.now()
+        
+        print("🔧 缓存模式：加载预处理的缓存数据...")
+        
+        # 查找可用的缓存文件
+        import glob
+        cache_files = glob.glob(os.path.join(self.cache_dir, "*_analysis.json"))
+        
+        if not cache_files:
+            return {
+                "error": "缓存模式：未找到可用的缓存文件",
+                "success": False
+            }
+        
+        # 选择第一个可用的缓存文件（或者根据lecture_title匹配）
+        selected_cache = cache_files[0]
+        if lecture_title != "Untitled Video":
+            # 尝试根据lecture_title匹配缓存文件
+            title_pattern = f"*{lecture_title}*_analysis.json"
+            title_matches = glob.glob(os.path.join(self.cache_dir, title_pattern))
+            if title_matches:
+                selected_cache = title_matches[0]
+        
+        print(f"📂 使用缓存文件: {os.path.basename(selected_cache)}")
+        
+        try:
+            # 加载缓存数据
+            with open(selected_cache, 'r', encoding='utf-8') as f:
+                cache_data = json.load(f)
+            
+            transcription = cache_data.get('transcription', {})
+            analysis = cache_data.get('analysis', {})
+            
+            if not transcription or not analysis:
+                return {
+                    "error": "缓存模式：缓存文件数据不完整",
+                    "success": False
+                }
+            
+            # 更新处理日志
+            self.processing_log['segments_count'] = len(analysis.get('content_segments', []))
+            self.processing_log['content_type'] = analysis.get('content_type', '')
+            self.processing_log['content_subtype'] = analysis.get('content_subtype', '')
+            self.processing_log['confidence'] = analysis.get('confidence', 0.0)
+            self.processing_log['transcription_length'] = len(transcription.get('text', ''))
+            self.processing_log['cache_used'] = True
+            
+            # 生成Summary
+            print("🔄 正在生成Summary...")
+            summary_result = self.summary_integrator.generate_summary(
+                analysis, transcription, lecture_title, language
+            )
+            
+            end_time = datetime.now()
+            processing_time = (end_time - start_time).total_seconds()
+            self.processing_log["processing_time"] = processing_time
+            
+            print(f"✅ 缓存模式处理完成，耗时: {processing_time:.2f}秒")
+            
+            return {
+                "transcription": transcription,
+                "analysis": analysis,
+                "notes": "缓存模式：分段笔记功能暂未实现",
+                "summary": "缓存模式：分段摘要功能暂未实现",
+                "summary_with_timestamps": "缓存模式：带时间戳的分段摘要功能暂未实现",
+                
+                # 新增整合Summary相关字段
+                "integrated_summary": summary_result["summary"],
+                "timestamp_mapping": summary_result["timestamp_mapping"],
+                "knowledge_points": summary_result["knowledge_points"],
+                "summary_statistics": self.summary_integrator.get_summary_statistics(),
+                
+                # 缓存模式特有字段
+                "cache_used": True,
+                "cache_file": os.path.basename(selected_cache),
+                "processor_version": "cache_only",
+                "processing_mode": "cache_only"
+            }
+            
+        except Exception as e:
+            return {
+                "error": f"缓存模式处理失败: {str(e)}",
+                "success": False
+            }

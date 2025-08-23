@@ -1,19 +1,24 @@
-# Ignore virtual environment
-venv/
-.venv/
+# 排除大文件，避免Vercel部署限制
+data/questions/AMC10_realtest.csv
+data/questions/pdf_test_questions.csv
+data/questions/pdf_test_with_expectations.json
 
-# Ignore Python cache files
-__pycache__/
-*.pyc
-
-# Ignore IDE/editor configuration files
-.vscode/
-.idea/
-
-# Ignore local data and cache directories
+# 排除测试视频文件
+测试/
 *.mp4
 *.mov
+*.avi
+*.mkv
 
-# Ignore test files
-tests/
-*.db
+# 排除开发文件
+.DS_Store
+*.pyc
+__pycache__/
+*.log
+
+# 排除环境文件
+.env
+llm.env
+
+# 保留缓存文件（这些是必需的）
+!data/cache/*_analysis.json

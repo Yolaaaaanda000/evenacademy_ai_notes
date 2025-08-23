@@ -14,6 +14,10 @@ from core.knowledge_point_dialogue import handle_knowledge_point_dialogue_reques
 # 新处理器标志
 NEW_PROCESSOR = True
 
+# Vercel部署模式配置
+CACHE_ONLY_MODE = True  # 设置为True时仅使用缓存，跳过视频处理
+VERCEL_DEPLOYMENT = True  # Vercel部署标志
+
 # 加载环境变量
 load_dotenv('llm.env')
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -82,16 +86,30 @@ def process_video():
         return jsonify({"error": "不支持的视频格式"}), 400
     
     try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # 保存视频文件
-            video_path = os.path.join(tmpdir, video_file.filename)
-            video_file.save(video_path)
+        # 检查是否为缓存模式
+        if CACHE_ONLY_MODE:
+            print("🔧 缓存模式：跳过视频处理，直接使用缓存数据")
             
-            # 初始化视频处理器
-            processor = VideoProcessor(os.getenv("GEMINI_API_KEY"))
+            # 初始化视频处理器（缓存模式）
+            processor = VideoProcessor(os.getenv("GEMINI_API_KEY"), cache_only_mode=True)
             
-            # 处理视频
-            result = processor.process_video(video_path, lecture_title, language)
+            # 使用预定义的缓存文件路径
+            cache_video_path = f"./data/cache/{lecture_title}_cache.mp4"
+            
+            # 处理视频（仅使用缓存）
+            result = processor.process_video(cache_video_path, lecture_title, language)
+        else:
+            # 完整处理模式
+            with tempfile.TemporaryDirectory() as tmpdir:
+                # 保存视频文件
+                video_path = os.path.join(tmpdir, video_file.filename)
+                video_file.save(video_path)
+                
+                # 初始化视频处理器
+                processor = VideoProcessor(os.getenv("GEMINI_API_KEY"))
+                
+                # 处理视频
+                result = processor.process_video(video_path, lecture_title, language)
             
             # 根据是否使用新处理器返回不同格式
             if NEW_PROCESSOR and 'integrated_summary' in result:
@@ -172,7 +190,10 @@ def process_video():
                 })
             
     except Exception as e:
-        return jsonify({"error": f"处理视频时出错: {str(e)}"}), 500
+        error_msg = f"处理视频时出错: {str(e)}"
+        if CACHE_ONLY_MODE:
+            error_msg += " (缓存模式)"
+        return jsonify({"error": error_msg}), 500
 
 @app.route('/practice_dialog', methods=['GET'])
 def practice_dialog():
