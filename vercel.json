@@ -5,7 +5,8 @@
       "use": "@vercel/python",
       "config": {
         "includeFiles": "prompts/**",
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "50mb",
+        "maxDuration": 30
       }
     }
   ],
@@ -14,10 +15,5 @@
       "src": "/(.*)",
       "dest": "app.py"
     }
-  ],
-  "functions": {
-    "app.py": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
