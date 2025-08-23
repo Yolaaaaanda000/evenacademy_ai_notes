@@ -23,9 +23,9 @@ load_dotenv('llm.env')
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # 移除本地代理设置，适配Vercel部署
-# os.environ['https_proxy'] = "http://127.0.0.1:8118"
-# os.environ['http_proxy'] = "http://127.0.0.1:8118"
-# os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
+os.environ['https_proxy'] = "http://127.0.0.1:8118"
+os.environ['http_proxy'] = "http://127.0.0.1:8118"
+os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
 
 app = Flask(__name__)
 
@@ -59,31 +59,36 @@ def download():
 @app.route('/process_video', methods=['POST'])
 def process_video():
     """处理视频文件，生成带时间戳的笔记"""
-    if 'video_file' not in request.files:
-        return jsonify({"error": "缺少视频文件"}), 400
-    
-    video_file = request.files['video_file']
-    if video_file.filename == '':
-        return jsonify({"error": "未选择视频文件"}), 400
-    
-    # Vercel文件大小检查
-    video_file.seek(0, 2)  # 移动到文件末尾
-    file_size = video_file.tell()
-    video_file.seek(0)  # 重置到文件开头
-    
-    if file_size > MAX_FILE_SIZE:
-        return jsonify({
-            "error": f"文件大小超过限制。最大允许: {MAX_FILE_SIZE // (1024*1024)}MB，当前文件: {file_size // (1024*1024)}MB"
-        }), 400
-    
     lecture_title = request.form.get('title', 'Untitled Video')
     language = request.form.get('language', 'English')
     output_type = request.form.get('output_type', 'notes')
     
-    # 检查文件格式
-    video_ext = os.path.splitext(video_file.filename)[1].lower()
-    if video_ext not in ['.mp4', '.mov', '.avi', '.mkv']:
-        return jsonify({"error": "不支持的视频格式"}), 400
+    # 检查是否为缓存模式
+    if CACHE_ONLY_MODE:
+        print("🔧 缓存模式：跳过视频文件检查，直接使用缓存数据")
+    else:
+        # 完整模式：检查视频文件
+        if 'video_file' not in request.files:
+            return jsonify({"error": "缺少视频文件"}), 400
+        
+        video_file = request.files['video_file']
+        if video_file.filename == '':
+            return jsonify({"error": "未选择视频文件"}), 400
+        
+        # Vercel文件大小检查
+        video_file.seek(0, 2)  # 移动到文件末尾
+        file_size = video_file.tell()
+        video_file.seek(0)  # 重置到文件开头
+        
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({
+                "error": f"文件大小超过限制。最大允许: {MAX_FILE_SIZE // (1024*1024)}MB，当前文件: {file_size // (1024*1024)}MB"
+            }), 400
+        
+        # 检查文件格式
+        video_ext = os.path.splitext(video_file.filename)[1].lower()
+        if video_ext not in ['.mp4', '.mov', '.avi', '.mkv']:
+            return jsonify({"error": "不支持的视频格式"}), 400
     
     try:
         # 检查是否为缓存模式
@@ -93,11 +98,8 @@ def process_video():
             # 初始化视频处理器（缓存模式）
             processor = VideoProcessor(os.getenv("GEMINI_API_KEY"), cache_only_mode=True)
             
-            # 使用预定义的缓存文件路径
-            cache_video_path = f"./data/cache/{lecture_title}_cache.mp4"
-            
             # 处理视频（仅使用缓存）
-            result = processor.process_video(cache_video_path, lecture_title, language)
+            result = processor.process_video("", lecture_title, language)
         else:
             # 完整处理模式
             with tempfile.TemporaryDirectory() as tmpdir:
@@ -110,8 +112,8 @@ def process_video():
                 
                 # 处理视频
                 result = processor.process_video(video_path, lecture_title, language)
-            
-            # 根据是否使用新处理器返回不同格式
+        
+        # 统一的返回逻辑处理
             if NEW_PROCESSOR and 'integrated_summary' in result:
                 # 新架构：有整合Summary
                 if output_type == 'integrated_summary':
