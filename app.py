@@ -24,9 +24,9 @@ processor = VideoProcessor(
     cache_only_mode=CACHE_ONLY_MODE
 )
 
-os.environ['https_proxy'] = "http://127.0.0.1:8118"
-os.environ['http_proxy'] = "http://127.0.0.1:8118"
-os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
+# os.environ['https_proxy'] = "http://127.0.0.1:8118"
+# os.environ['http_proxy'] = "http://127.0.0.1:8118"
+# os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
 
 app = Flask(__name__)
 

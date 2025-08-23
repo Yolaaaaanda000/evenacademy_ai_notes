@@ -28,11 +28,11 @@ class VideoProcessor:
             self.cache_dir = os.path.join(os.getcwd(), "data", "cache")
         else:
             # 本地开发：使用相对路径
-            self.cache_dir = "./data/cache"
+        self.cache_dir = "./data/cache"
         
         # 确保缓存目录存在（本地开发时）
         if not self.is_vercel:
-            os.makedirs(self.cache_dir, exist_ok=True)
+        os.makedirs(self.cache_dir, exist_ok=True)
         
         print(f"🏗️ 环境检测: {'Vercel' if self.is_vercel else 'Local'}")
         print(f"📁 缓存目录: {self.cache_dir}")
@@ -464,14 +464,14 @@ class VideoProcessor:
         """从视频中提取音频"""
         try:
             import ffmpeg
-            (
-                ffmpeg
-                .input(video_path)
-                .output(output_audio_path, acodec='pcm_s16le', ac=1, ar='16k')
-                .overwrite_output()
-                .run(quiet=True)
-            )
-            return output_audio_path
+        (
+            ffmpeg
+            .input(video_path)
+            .output(output_audio_path, acodec='pcm_s16le', ac=1, ar='16k')
+            .overwrite_output()
+            .run(quiet=True)
+        )
+        return output_audio_path
         except Exception as e:
             print(f"❌ 音频提取失败: {e}")
             raise e
@@ -487,16 +487,16 @@ class VideoProcessor:
         """使用Whisper转录视频并获取时间戳"""
         try:
             import whisper
-            model = whisper.load_model(model_size)
-            result = model.transcribe(video_path, word_timestamps=True)
+        model = whisper.load_model(model_size)
+        result = model.transcribe(video_path, word_timestamps=True)
             
-            # 记录转录信息
-            self._log_processing_info("transcription", {
-                "text_length": len(result.get('text', '')),
-                "segments_count": len(result.get('segments', [])),
-                "model_size": model_size
-            })
-            return result
+        # 记录转录信息
+        self._log_processing_info("transcription", {
+            "text_length": len(result.get('text', '')),
+            "segments_count": len(result.get('segments', [])),
+            "model_size": model_size
+        })
+        return result
         except Exception as e:
             print(f"❌ 视频转录失败: {e}")
             raise e
@@ -509,11 +509,11 @@ class VideoProcessor:
                 return {"start_time": "00:00:00", "end_time": "00:00:00", "duration_seconds": 0}
             
             # 简化的时间戳匹配逻辑
-            start_time = segments[0]['start']
-            end_time = segments[-1]['end']
+                        start_time = segments[0]['start']
+                        end_time = segments[-1]['end']
             
             # 这里可以添加更复杂的匹配逻辑，但为了Vercel部署简化处理
-            duration = end_time - start_time
+                duration = end_time - start_time
             
             return {
                 "start_time": self._format_timestamp(start_time),
@@ -527,7 +527,7 @@ class VideoProcessor:
         except Exception as e:
             print(f"❌ 时间戳匹配失败: {e}")
             return {"start_time": "00:00:00", "end_time": "00:00:00", "duration_seconds": 0}
-
+    
     def analyze_video_content(self, transcription: Dict, lecture_title: str) -> Dict:
         """分析视频内容 - Vercel优化版本"""
         if self.cache_only_mode or self.is_vercel:
@@ -547,8 +547,8 @@ class VideoProcessor:
                 lecture_title=lecture_title,
                 transcription_text=transcription['text']
             )
-            
-            response = self.model.generate_content(prompt)
+        
+        response = self.model.generate_content(prompt)
             
             if not response or not hasattr(response, 'text') or not response.text:
                 raise Exception("API响应为空或无效")
@@ -654,7 +654,7 @@ class VideoProcessor:
             self.processing_log["content_type"] = info.get("content_type", "")
             self.processing_log["content_subtype"] = info.get("content_subtype", "")
             self.processing_log["confidence"] = info.get("confidence", 0.0)
-
+    
     def clear_cache(self, lecture_title: str = None):
         """清理缓存文件"""
         if self.is_vercel:
@@ -676,7 +676,7 @@ class VideoProcessor:
             for cache_file in cache_files:
                 os.remove(cache_file)
                 print(f"🗑️ 已删除缓存: {cache_file}")
-
+    
     def list_cache_files(self):
         """列出所有缓存文件及其详细信息"""
         cache_files = self._get_available_cache_files()
