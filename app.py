@@ -14,14 +14,19 @@ from core.knowledge_point_dialogue import handle_knowledge_point_dialogue_reques
 # 新处理器标志
 NEW_PROCESSOR = True
 
-# 加载环境变量
-load_dotenv('llm.env')
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# 在app.py中，确保正确设置缓存模式
+CACHE_ONLY_MODE = True  # Vercel部署时设为True
+VERCEL_DEPLOYMENT = True
 
-# 移除本地代理设置，适配Vercel部署
-# os.environ['https_proxy'] = "http://127.0.0.1:8118"
-# os.environ['http_proxy'] = "http://127.0.0.1:8118"
-# os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
+# 初始化时传递正确的参数
+processor = VideoProcessor(
+    os.getenv("GEMINI_API_KEY"), 
+    cache_only_mode=CACHE_ONLY_MODE
+)
+
+os.environ['https_proxy'] = "http://127.0.0.1:8118"
+os.environ['http_proxy'] = "http://127.0.0.1:8118"
+os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
 
 app = Flask(__name__)
 
@@ -55,124 +60,148 @@ def download():
 @app.route('/process_video', methods=['POST'])
 def process_video():
     """处理视频文件，生成带时间戳的笔记"""
-    if 'video_file' not in request.files:
-        return jsonify({"error": "缺少视频文件"}), 400
-    
-    video_file = request.files['video_file']
-    if video_file.filename == '':
-        return jsonify({"error": "未选择视频文件"}), 400
-    
-    # Vercel文件大小检查
-    video_file.seek(0, 2)  # 移动到文件末尾
-    file_size = video_file.tell()
-    video_file.seek(0)  # 重置到文件开头
-    
-    if file_size > MAX_FILE_SIZE:
-        return jsonify({
-            "error": f"文件大小超过限制。最大允许: {MAX_FILE_SIZE // (1024*1024)}MB，当前文件: {file_size // (1024*1024)}MB"
-        }), 400
-    
     lecture_title = request.form.get('title', 'Untitled Video')
     language = request.form.get('language', 'English')
     output_type = request.form.get('output_type', 'notes')
     
-    # 检查文件格式
-    video_ext = os.path.splitext(video_file.filename)[1].lower()
-    if video_ext not in ['.mp4', '.mov', '.avi', '.mkv']:
-        return jsonify({"error": "不支持的视频格式"}), 400
+    # 检查是否为缓存模式
+    if CACHE_ONLY_MODE:
+        print("🔧 缓存模式：跳过视频文件检查，直接使用缓存数据")
+    else:
+        # 完整模式：检查视频文件
+        if 'video_file' not in request.files:
+            return jsonify({"error": "缺少视频文件"}), 400
+        
+        video_file = request.files['video_file']
+        if video_file.filename == '':
+            return jsonify({"error": "未选择视频文件"}), 400
+        
+        # Vercel文件大小检查
+        video_file.seek(0, 2)  # 移动到文件末尾
+        file_size = video_file.tell()
+        video_file.seek(0)  # 重置到文件开头
+        
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({
+                "error": f"文件大小超过限制。最大允许: {MAX_FILE_SIZE // (1024*1024)}MB，当前文件: {file_size // (1024*1024)}MB"
+            }), 400
+        
+        # 检查文件格式
+        video_ext = os.path.splitext(video_file.filename)[1].lower()
+        if video_ext not in ['.mp4', '.mov', '.avi', '.mkv']:
+            return jsonify({"error": "不支持的视频格式"}), 400
     
     try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # 保存视频文件
-            video_path = os.path.join(tmpdir, video_file.filename)
-            video_file.save(video_path)
+        # 检查是否为缓存模式
+        if CACHE_ONLY_MODE:
+            print("🔧 缓存模式：跳过视频处理，直接使用缓存数据")
             
-            # 初始化视频处理器
-            processor = VideoProcessor(os.getenv("GEMINI_API_KEY"))
+            # 初始化视频处理器（缓存模式）
+            processor = VideoProcessor(os.getenv("GEMINI_API_KEY"), cache_only_mode=True)
             
-            # 处理视频
-            result = processor.process_video(video_path, lecture_title, language)
-            
-            # 根据是否使用新处理器返回不同格式
-            if NEW_PROCESSOR and 'integrated_summary' in result:
-                # 新架构：有整合Summary
-                if output_type == 'integrated_summary':
-                    content = result['integrated_summary']
-                    filename = f"{lecture_title}_完整Summary"
-                    file_extension = '.md'
-                    analysis_data = result.get('analysis', {})
-                elif output_type == 'notes':
-                    content = result.get('notes', result.get('integrated_summary', ''))
-                    filename = f"{lecture_title}_带时间戳笔记"
-                    file_extension = '.md'
-                    analysis_data = result.get('analysis', {})
-                elif output_type == 'summary':
-                    content = result.get('summary', result.get('integrated_summary', ''))
-                    filename = f"{lecture_title}_视频摘要"
-                    file_extension = '.md'
-                    analysis_data = result.get('analysis', {})
-                elif output_type == 'analysis':
-                    content = json.dumps(result.get('analysis', {}), ensure_ascii=False, indent=2)
-                    filename = f"{lecture_title}_视频分析"
-                    file_extension = '.json'
-                    analysis_data = result.get('analysis', {})
-                else:
-                    # 默认返回整合Summary
-                    content = result.get('integrated_summary', '')
-                    filename = f"{lecture_title}_完整Summary"
-                    file_extension = '.md'
-                    analysis_data = result.get('analysis', {})
+            # 处理视频（仅使用缓存）
+            result = processor.process_video("", lecture_title, language)
+        else:
+            # 完整处理模式
+            with tempfile.TemporaryDirectory() as tmpdir:
+                # 保存视频文件
+                video_path = os.path.join(tmpdir, video_file.filename)
+                video_file.save(video_path)
                 
-                return jsonify({
-                    "success": True,
-                    "content": content,
-                    "filename": filename,
-                    "file_extension": file_extension,
-                    "analysis": analysis_data,
-                    "transcription": result.get('transcription', {}),
-                    "lecture_title": lecture_title,
-                    "language": language,
-                    "integrated_summary": result.get('integrated_summary', ''),
-                    "timestamp_mapping": result.get('timestamp_mapping', {}),
-                    "knowledge_points": result.get('knowledge_points', []),
-                    "cache_used": result.get('cache_used', False),
-                    "processor_version": "new",
-                    "summary_statistics": result.get('summary_statistics', {})
-                })
-            
+                # 初始化视频处理器
+                processor = VideoProcessor(os.getenv("GEMINI_API_KEY"))
+                
+                # 处理视频
+                result = processor.process_video(video_path, lecture_title, language)
+        
+        # 检查处理结果是否有错误
+        if 'error' in result:
+            return jsonify({"error": result['error']}), 500
+        
+        # 统一的返回逻辑处理
+        # 检查是否为缓存模式或新架构
+        if (NEW_PROCESSOR and 'integrated_summary' in result) or result.get('processor_version') == 'cache_only':
+            # 新架构：有整合Summary
+            if output_type == 'integrated_summary':
+                content = result['integrated_summary']
+                filename = f"{lecture_title}_完整Summary"
+                file_extension = '.md'
+                analysis_data = result.get('analysis', {})
+            elif output_type == 'notes':
+                content = result.get('notes', result.get('integrated_summary', ''))
+                filename = f"{lecture_title}_带时间戳笔记"
+                file_extension = '.md'
+                analysis_data = result.get('analysis', {})
+            elif output_type == 'summary':
+                content = result.get('summary', result.get('integrated_summary', ''))
+                filename = f"{lecture_title}_视频摘要"
+                file_extension = '.md'
+                analysis_data = result.get('analysis', {})
+            elif output_type == 'analysis':
+                content = json.dumps(result.get('analysis', {}), ensure_ascii=False, indent=2)
+                filename = f"{lecture_title}_视频分析"
+                file_extension = '.json'
+                analysis_data = result.get('analysis', {})
             else:
-                # 旧架构：保持原有逻辑
-                if output_type == 'notes':
-                    content = result['notes']
-                    filename = f"{lecture_title}_带时间戳笔记"
-                    file_extension = '.md'
-                elif output_type == 'summary':
-                    content = result['summary']
-                    filename = f"{lecture_title}_视频摘要"
-                    file_extension = '.md'
-                    analysis_data = result.get('summary_with_timestamps', {})
-                elif output_type == 'analysis':
-                    content = json.dumps(result['analysis'], ensure_ascii=False, indent=2)
-                    filename = f"{lecture_title}_视频分析"
-                    file_extension = '.json'
-                    analysis_data = result['analysis']
-                else:
-                    content = result['notes']
-                    filename = f"{lecture_title}_带时间戳笔记"
-                    file_extension = '.md'
-                
-                return jsonify({
-                    "success": True,
-                    "content": content,
-                    "filename": filename,
-                    "file_extension": file_extension,
-                    "analysis": analysis_data if 'analysis_data' in locals() else result['analysis'],
-                    "transcription": result['transcription'],
-                    "processor_version": "legacy"
-                })
+                # 默认返回整合Summary
+                content = result.get('integrated_summary', '')
+                filename = f"{lecture_title}_完整Summary"
+                file_extension = '.md'
+                analysis_data = result.get('analysis', {})
+            
+            return jsonify({
+                "success": True,
+                "content": content,
+                "filename": filename,
+                "file_extension": file_extension,
+                "analysis": analysis_data,
+                "transcription": result.get('transcription', {}),
+                "lecture_title": lecture_title,
+                "language": language,
+                "integrated_summary": result.get('integrated_summary', ''),
+                "timestamp_mapping": result.get('timestamp_mapping', {}),
+                "knowledge_points": result.get('knowledge_points', []),
+                "cache_used": result.get('cache_used', False),
+                "processor_version": "new",
+                "summary_statistics": result.get('summary_statistics', {})
+            })
+        
+        else:
+            # 旧架构：保持原有逻辑
+            if output_type == 'notes':
+                content = result['notes']
+                filename = f"{lecture_title}_带时间戳笔记"
+                file_extension = '.md'
+            elif output_type == 'summary':
+                content = result['summary']
+                filename = f"{lecture_title}_视频摘要"
+                file_extension = '.md'
+                analysis_data = result.get('summary_with_timestamps', {})
+            elif output_type == 'analysis':
+                content = json.dumps(result['analysis'], ensure_ascii=False, indent=2)
+                filename = f"{lecture_title}_视频分析"
+                file_extension = '.json'
+                analysis_data = result['analysis']
+            else:
+                content = result['notes']
+                filename = f"{lecture_title}_带时间戳笔记"
+                file_extension = '.md'
+            
+            return jsonify({
+                "success": True,
+                "content": content,
+                "filename": filename,
+                "file_extension": file_extension,
+                "analysis": analysis_data if 'analysis_data' in locals() else result['analysis'],
+                "transcription": result['transcription'],
+                "processor_version": "legacy"
+            })
             
     except Exception as e:
-        return jsonify({"error": f"处理视频时出错: {str(e)}"}), 500
+        error_msg = f"处理视频时出错: {str(e)}"
+        if CACHE_ONLY_MODE:
+            error_msg += " (缓存模式)"
+        return jsonify({"error": error_msg}), 500
 
 @app.route('/practice_dialog', methods=['GET'])
 def practice_dialog():

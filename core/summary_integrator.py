@@ -151,30 +151,78 @@ class SummaryIntegrator:
             # 检查响应文本
             integrated_summary = ""
             try:
-                # This is the 'quick accessor' that can fail if no text part is returned.
-                integrated_summary = response.text
-                if not integrated_summary.strip():
-                    # This handles cases where the model returns text, but it's just empty space.
+                # 检查finish_reason
+                if hasattr(response, 'candidates') and response.candidates:
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, 'finish_reason'):
+                        finish_reason = candidate.finish_reason
+                        if finish_reason == 1:  # 正常完成
+                            print("✅ finish_reason=1，API调用正常完成")
+                        else:
+                            print(f"⚠️ finish_reason={finish_reason}，可能有问题")
+                
+                # 检查parts数量
+                if hasattr(response, 'candidates') and response.candidates:
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                        parts = candidate.content.parts
+                        print(f"📊 parts数量: {len(parts)}")
+                        
+                        if len(parts) == 0:
+                            print("❌ parts数量为0，模型没有生成内容")
+                            # 尝试使用简化的prompt重新生成
+                            return self._retry_with_simplified_prompt(analysis, transcription, lecture_title, language)
+                
+                # 尝试获取响应文本
+                if hasattr(response, 'text'):
+                    integrated_summary = response.text
+                elif hasattr(response, 'candidates') and response.candidates:
+                    # 手动从candidates中提取文本
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                        parts = candidate.content.parts
+                        if parts and hasattr(parts[0], 'text'):
+                            integrated_summary = parts[0].text
+                        else:
+                            print("❌ 响应parts中没有text属性")
+                            return self._create_empty_result("响应结构异常：parts中没有text属性")
+                    else:
+                        print("❌ 响应candidate中没有content或parts")
+                        return self._create_empty_result("响应结构异常：candidate中没有content")
+                else:
+                    print("❌ 响应既没有text属性也没有candidates")
+                    return self._create_empty_result("响应结构异常：没有text或candidates")
+                
+                if not integrated_summary or not integrated_summary.strip():
                     print("❌ 响应的text属性为空白内容。")
                     return self._create_empty_result("LLM响应返回了空文本。")
 
-            except ValueError:
-                # This block catches the exact error you are seeing.
-                print("❌ 访问 response.text 失败，因为模型没有返回文本内容。")
+            except Exception as text_error:
+                print(f"❌ 访问响应文本时出错: {type(text_error).__name__}: {text_error}")
                 
-                # Now, let's inspect what the response *actually* contains to find out why.
+                # 尝试诊断问题
                 try:
-                    part = response.candidates[0].content.parts[0]
-                    if hasattr(part, 'function_call') and part.function_call:
-                        fc = part.function_call
-                        print(f"🔍 诊断：响应包含一个工具调用: {fc.name}")
-                        return self._create_empty_result(f"模型试图调用工具 '{fc.name}'，而不是生成文本。请检查您的Prompt是否过于复杂。")
-                    else:
-                        print("🔍 诊断：响应不包含文本或已知的工具调用。")
-                        return self._create_empty_result("响应不包含有效的文本部分。")
-                except (IndexError, AttributeError):
-                    print("🔍 诊断：无法检查响应的具体内容。")
-                    return self._create_empty_result("响应结构异常，无法解析。")
+                    if hasattr(response, 'candidates') and response.candidates:
+                        candidate = response.candidates[0]
+                        print(f"🔍 诊断：candidate类型: {type(candidate)}")
+                        print(f"🔍 诊断：candidate属性: {list(candidate.__dict__.keys())}")
+                        
+                        if hasattr(candidate, 'content'):
+                            content = candidate.content
+                            print(f"🔍 诊断：content类型: {type(content)}")
+                            print(f"🔍 诊断：content属性: {list(content.__dict__.keys())}")
+                            
+                            if hasattr(content, 'parts'):
+                                parts = content.parts
+                                print(f"🔍 诊断：parts数量: {len(parts)}")
+                                if parts:
+                                    part = parts[0]
+                                    print(f"🔍 诊断：part类型: {type(part)}")
+                                    print(f"🔍 诊断：part属性: {list(part.__dict__.keys())}")
+                except Exception as diag_error:
+                    print(f"🔍 诊断过程出错: {diag_error}")
+                
+                return self._create_empty_result(f"无法提取响应文本: {str(text_error)}")
 
             print(f"✅ 成功获取响应文本，长度: {len(integrated_summary)} 字符")
             
@@ -393,6 +441,54 @@ class SummaryIntegrator:
             "success": False,
             "error": error_message
         }
+    
+    def _retry_with_simplified_prompt(self, analysis: Dict, transcription: Dict, lecture_title: str, language: str) -> Dict:
+        """使用简化的prompt重试生成Summary"""
+        print("🔄 使用简化prompt重试生成Summary...")
+        
+        try:
+            # 创建简化的prompt
+            simplified_prompt = f"""请为以下视频内容生成一个简洁的总结：
+
+视频标题：{lecture_title}
+语言：{language}
+
+视频内容：
+{transcription.get('text', '')[:2000]}...
+
+请生成一个200-500字的总结，包含：
+1. 主要内容概述
+2. 关键知识点
+3. 重要概念
+
+总结："""
+            
+            print(f"📝 简化prompt长度: {len(simplified_prompt)} 字符")
+            
+            # 调用API
+            response = self.model.generate_content(simplified_prompt)
+            
+            # 检查响应
+            if hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                    parts = candidate.content.parts
+                    if parts and hasattr(parts[0], 'text'):
+                        summary = parts[0].text
+                        print(f"✅ 简化prompt成功生成Summary，长度: {len(summary)} 字符")
+                        
+                        return {
+                            "summary": summary,
+                            "timestamp_mapping": {},
+                            "knowledge_points": []
+                        }
+            
+            print("❌ 简化prompt也失败了")
+            return self._create_empty_result("简化prompt重试失败")
+            
+        except Exception as e:
+            print(f"❌ 简化prompt重试异常: {e}")
+            return self._create_empty_result(f"简化prompt重试异常: {str(e)}")
     
     def validate_summary_quality(self, summary: str, language: str = "中文") -> Dict[str, bool]:
         """
