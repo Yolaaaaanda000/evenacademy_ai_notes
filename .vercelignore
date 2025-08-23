@@ -1,7 +1,3 @@
-# 排除大文件，避免Vercel部署限制
-data/questions/AMC10_realtest.csv
-data/questions/pdf_test_questions.csv
-data/questions/pdf_test_with_expectations.json
 
 # 排除测试视频文件
 测试/
