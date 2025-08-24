@@ -1,6 +1,6 @@
 # Core Web Framework
 flask==2.3.3
-gunicorn==21.2.0
+# gunicorn==21.2.0
 
 # AI & LLM Services
 google-generativeai==0.3.2
@@ -9,7 +9,11 @@ python-dotenv==1.0.0
 # Data Handling
 pandas==2.0.3
 
+# 可选依赖（根据部署环境选择）
+# 本地开发环境需要以下依赖：
+# openai-whisper==20231117
+# ffmpeg-python==0.2.0
 
-# 移除以下依赖以适配Vercel部署：
+# Vercel部署环境不需要以下依赖（已注释）：
 # openai-whisper==20231117
 # ffmpeg-python==0.2.0
