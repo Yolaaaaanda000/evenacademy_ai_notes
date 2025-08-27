@@ -24,7 +24,7 @@ class AIDialogueHandler:
         os.environ['http_proxy'] = "http://127.0.0.1:8118"
         os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
         
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.prompt_templates = self._load_prompt_templates()
     
     def _load_prompt_templates(self) -> Dict[str, str]:

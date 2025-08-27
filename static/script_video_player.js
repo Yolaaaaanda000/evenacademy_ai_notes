@@ -9,6 +9,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const processingStatus = document.getElementById('processing-status');
     const statusText = document.getElementById('status-text');
 
+    // 调试：检查DOM元素是否正确加载
+    console.log('🔍 DOM元素检查:');
+    console.log('videoFileInput:', videoFileInput);
+    console.log('uploadSection:', uploadSection);
+    console.log('processingStatus:', processingStatus);
+    console.log('playerSection:', playerSection);
+    
+    if (!processingStatus) {
+        console.error('❌ 严重错误：未找到processing-status元素！');
+        alert('页面加载错误：未找到处理状态元素');
+    }
+    
+
+
     // 视频播放器元素
     const videoPlayer = document.getElementById('video-player');
     const videoSource = document.getElementById('video-source');
@@ -85,11 +99,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const language = videoLanguageSelect.value;
 
         // 显示处理状态
-        uploadSection.style.display = 'none';
-        processingStatus.style.display = 'block';
+        console.log('🔄 开始显示处理状态...');
+        console.log('uploadSection:', uploadSection);
+        console.log('processingStatus:', processingStatus);
+        
+        if (uploadSection) {
+            uploadSection.style.display = 'none';
+            console.log('✅ 上传区域已隐藏');
+        }
+        
+        if (processingStatus) {
+            console.log('处理状态容器classList:', processingStatus.classList);
+            console.log('移除hidden类前:', processingStatus.classList.contains('hidden'));
+            processingStatus.classList.remove('hidden');
+            // 强制设置display属性
+            processingStatus.style.display = 'block';
+            processingStatus.style.setProperty('display', 'block', 'important');
+            processingStatus.style.visibility = 'visible';
+            processingStatus.style.opacity = '1';
+            console.log('移除hidden类后:', processingStatus.classList.contains('hidden'));
+            console.log('✅ 处理状态容器已显示');
+            console.log('处理状态容器样式:', {
+                display: processingStatus.style.display,
+                visibility: processingStatus.style.visibility,
+                opacity: processingStatus.style.opacity
+            });
+            
 
-        // 初始化处理状态
-        initializeProcessingStatus();
+            
+
+            
+        } else {
+            console.error('❌ 未找到处理状态容器');
+        }
 
         try {
             // 创建FormData
@@ -99,16 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('language', language);
             formData.append('output_type', 'analysis');
 
-            // 开始处理计时
-            const startTime = Date.now();
-            const timeInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                document.getElementById('processing-time').textContent = `已用时: ${elapsed}秒`;
-            }, 1000);
-
-            // 模拟处理步骤进度
-            simulateProcessingSteps();
-
             // 发送请求
             const response = await fetch('/process_video', {
                 method: 'POST',
@@ -117,12 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const result = await response.json();
 
-            // 清除计时器
-            clearInterval(timeInterval);
-
             if (result.success) {
-                // 完成所有步骤
-                completeAllSteps();
 
                 // 保存数据
                 currentVideoData = result;
@@ -226,113 +253,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 初始化处理状态
-    function initializeProcessingStatus() {
-        const progressFill = document.getElementById('progress-fill');
-        const statusText = document.getElementById('status-text');
-
-        progressFill.style.width = '0%';
-        statusText.textContent = '正在初始化处理流程...';
-
-        // 重置所有步骤状态
-        const steps = document.querySelectorAll('.processing-step');
-        steps.forEach(step => {
-            step.classList.remove('active', 'completed');
-            const icon = step.querySelector('.step-icon');
-            icon.className = 'step-icon pending';
-        });
-    }
-
-    // 模拟处理步骤进度
-    function simulateProcessingSteps() {
-        const steps = [{
-            step: 'transcribe',
-            title: '语音转录',
-            description: '正在将视频音频转换为文字...',
-            duration: 3000
-        }, {
-            step: 'analyze',
-            title: '内容分析',
-            description: 'AI正在识别重要知识点和内容片段...',
-            duration: 4000
-        }, {
-            step: 'timestamp',
-            title: '精确匹配时间戳',
-            description: '正在基于关键句子精确定位时间...',
-            duration: 3000
-        }, {
-            step: 'generate',
-            title: '生成笔记',
-            description: '正在生成结构化笔记...',
-            duration: 2000
-        }, ];
-
-        let currentStep = 0;
-        const totalSteps = steps.length;
-
-        function processNextStep() {
-            if (currentStep >= totalSteps) return;
-
-            const step = steps[currentStep];
-            const stepElement = document.querySelector(`[data-step="${step.step}"]`);
-            const statusText = document.getElementById('status-text');
-            const progressFill = document.getElementById('progress-fill');
-
-            // 激活当前步骤
-            stepElement.classList.add('active');
-            const icon = stepElement.querySelector('.step-icon');
-            icon.className = 'step-icon active';
-
-            // 更新状态文本
-            statusText.textContent = step.description;
-
-            // 更新进度条
-            const progress = ((currentStep + 1) / totalSteps) * 100;
-            progressFill.style.width = `${progress}%`;
-
-            // 延迟后完成当前步骤
-            setTimeout(() => {
-                stepElement.classList.remove('active');
-                stepElement.classList.add('completed');
-                icon.className = 'step-icon completed';
-
-                currentStep++;
-                if (currentStep < totalSteps) {
-                    processNextStep();
-                }
-            }, step.duration);
-        }
-
-        // 开始处理步骤
-        setTimeout(processNextStep, 1000);
-    }
-
-    // 完成所有步骤
-    function completeAllSteps() {
-        const steps = document.querySelectorAll('.processing-step');
-        const progressFill = document.getElementById('progress-fill');
-        const statusText = document.getElementById('status-text');
-
-        steps.forEach(step => {
-            step.classList.remove('active');
-            step.classList.add('completed');
-            const icon = step.querySelector('.step-icon');
-            icon.className = 'step-icon completed';
-        });
-
-        progressFill.style.width = '100%';
-        statusText.textContent = '✅ 视频分析完成！正在准备播放器...';
-    }
-
     // 显示成功消息
     function showSuccessMessage() {
         const statusText = document.getElementById('status-text');
         const processingTitle = document.querySelector('.processing-title');
         const processingSubtitle = document.querySelector('.processing-subtitle');
 
-        processingTitle.textContent = '🎉 分析完成！';
-        processingSubtitle.textContent = '视频内容已成功分析，正在加载播放器...';
-        statusText.textContent = '✅ 所有步骤已完成，准备就绪！';
+        processingTitle.textContent = '🎉 Analysis Completed';
+        processingSubtitle.textContent = 'Video content has been successfully analyzed, loading player...';
+        statusText.textContent = '✅ Summary is ready!';
     }
 
     // 显示错误消息
@@ -341,9 +270,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const processingTitle = document.querySelector('.processing-title');
         const processingSubtitle = document.querySelector('.processing-subtitle');
 
-        processingTitle.textContent = '❌ 处理失败';
-        processingSubtitle.textContent = '视频处理过程中遇到问题';
-        statusText.textContent = `错误信息: ${error}`;
+        processingTitle.textContent = '❌ Analysis Failed';
+        processingSubtitle.textContent = 'An error occurred during video processing';
+        statusText.textContent = `Error: ${error}`;
     }
 
     // 生成知识点列表
@@ -505,23 +434,23 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('视频加载完成');
         });
 
-
-
         // 时间更新事件
         videoPlayer.addEventListener('timeupdate', function() {
             updateActiveKnowledgePoint();
         });
 
-        // 全屏按钮事件
-        fullscreenBtn.addEventListener('click', function() {
-            if (videoPlayer.requestFullscreen) {
-                videoPlayer.requestFullscreen();
-            } else if (videoPlayer.webkitRequestFullscreen) {
-                videoPlayer.webkitRequestFullscreen();
-            } else if (videoPlayer.msRequestFullscreen) {
-                videoPlayer.msRequestFullscreen();
-            }
-        });
+        // 全屏按钮事件 - 检查按钮是否存在
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', function() {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) {
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.msRequestFullscreen) {
+                    videoPlayer.msRequestFullscreen();
+                }
+            });
+        }
     }
 
 
@@ -575,20 +504,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 自动滚动切换
-    autoScrollBtn.addEventListener('click', function() {
-        autoScrollEnabled = !autoScrollEnabled;
-        this.classList.toggle('active');
-        this.title = autoScrollEnabled ? '自动滚动' : '手动滚动';
-    });
+    if (autoScrollBtn) {
+        autoScrollBtn.addEventListener('click', function() {
+            autoScrollEnabled = !autoScrollEnabled;
+            this.classList.toggle('active');
+            this.title = autoScrollEnabled ? '自动滚动' : '手动滚动';
+        });
+    }
 
     // 筛选功能
-    filterBtn.addEventListener('click', function() {
-        // 这里可以实现筛选功能，比如按重要性、类别等筛选
-        alert('Filter feature is under development...');
-    });
+    if (filterBtn) {
+        filterBtn.addEventListener('click', function() {
+            // 这里可以实现筛选功能，比如按重要性、类别等筛选
+            alert('Filter feature is under development...');
+        });
+    }
 
     // 导出笔记 - 修复导出功能
-    exportNotesBtn.addEventListener('click', function() {
+    if (exportNotesBtn) {
+        exportNotesBtn.addEventListener('click', function() {
         let contentToExport = '';
 
         if (currentSummary) {
@@ -604,10 +538,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const title = videoTitleDisplay.textContent || 'video';
         downloadFile(contentToExport, `${title}_完整笔记`, '.md');
-    });
+        });
+    }
 
     // 导出时间戳
-    exportTimestampsBtn.addEventListener('click', function() {
+    if (exportTimestampsBtn) {
+        exportTimestampsBtn.addEventListener('click', function() {
         if (knowledgePoints && knowledgePoints.length > 0) {
             const timestamps = knowledgePoints.map((kp, index) => {
                 const startTime = kp.start_time || '00:00:00';
@@ -620,10 +556,12 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             alert('No timestamps available for export');
         }
-    });
+        });
+    }
 
     // 分享功能
-    shareBtn.addEventListener('click', function() {
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
         if (navigator.share) {
             navigator.share({
                 title: videoTitleDisplay.textContent,
@@ -636,7 +574,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Link copied to clipboard');
             });
         }
-    });
+        });
+    }
 
     // 下载文件
     function downloadFile(content, filename, extension) {

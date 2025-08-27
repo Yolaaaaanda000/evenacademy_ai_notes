@@ -41,7 +41,7 @@ class VideoProcessor:
         try:
             import google.generativeai as genai
             genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-pro')
+            self.model = genai.GenerativeModel('gemini-2.5-flash')
             self.summary_integrator = SummaryIntegrator(api_key, prompts_dir="./prompts")
             self.prompt_manager = PromptManager("./prompts")
         except Exception as e:
