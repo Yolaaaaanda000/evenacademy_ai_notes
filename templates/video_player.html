@@ -9,6 +9,8 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
+
+    
     <div class="container">
         <header>
             <h1> Video Review Platform</h1>
@@ -48,59 +50,22 @@
                     </div>
                 </div>
                 
-                <div id="processing-status" class="processing-status" style="display: none;">
-                    <div class="processing-header">
-                        <h3 class="processing-title">🎬 Analyzing Video Content</h3>
-                        <p class="processing-subtitle">AI is intelligently identifying knowledge points in the video, please wait...</p>
-                    </div>
-                    
-                    <div class="processing-animation">
-                        <div class="loader"></div>
-                        <div class="processing-dots">
-                            <div class="processing-dot"></div>
-                            <div class="processing-dot"></div>
-                            <div class="processing-dot"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    
-                    <div class="processing-steps" id="processing-steps">
-                        <div class="processing-step" data-step="transcribe">
-                            <div class="step-icon pending">1</div>
-                            <div class="step-content">
-                                <div class="step-title">Speech Transcription</div>
-                                <div class="step-description">Converting video audio to text...</div>
-                            </div>
-                        </div>
-                        <div class="processing-step" data-step="analyze">
-                            <div class="step-icon pending">2</div>
-                            <div class="step-content">
-                                <div class="step-title">Content Analysis</div>
-                                <div class="step-description">AI is identifying important knowledge points and content segments...</div>
-                            </div>
-                        </div>
-                        <div class="processing-step" data-step="timestamp">
-                            <div class="step-icon pending">3</div>
-                            <div class="step-content">
-                                <div class="step-title">Precise Timestamp Matching</div>
-                                <div class="step-description">Precisely locating time based on key sentences...</div>
-                            </div>
-                        </div>
-                        <div class="processing-step" data-step="generate">
-                            <div class="step-icon pending">4</div>
-                            <div class="step-content">
-                                <div class="step-title">Generate Notes</div>
-                                <div class="step-description">Generating structured notes...</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <p id="status-text">Processing, please wait patiently...</p>
-                    <p class="processing-time" id="processing-time">Time used: 0 seconds</p>
+            </div>
+            
+            <!-- 处理状态区域 - 移到upload-section外面 -->
+            <div id="processing-status" class="processing-status hidden">
+                <div class="processing-header">
+                    <h3 class="processing-title">🎬 Analyzing Video Content</h3>
+                    <p class="processing-subtitle">AI is intelligently identifying knowledge points in the video, please wait...</p>
                 </div>
+                
+                <div class="processing-animation">
+                    <div class="loader"></div>
+                </div>
+                
+                <p id="status-text">Processing, please wait patiently...</p>
+                
+
             </div>
             
             <!-- 视频播放和知识点区域 -->
@@ -324,6 +289,8 @@
     </div>
     -->
 
+
+    
     <script src="/static/script_video_player.js"></script>
 </body>
 </html> 

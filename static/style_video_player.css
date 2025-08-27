@@ -194,10 +194,11 @@ main {
 .processing-status {
     text-align: center;
     padding: 60px 40px;
-    background: var(--bg-color);
+    background: #ffffff;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
+    border: 2px solid #02AFB1;
     margin: 20px 0;
+    box-shadow: 0 8px 32px rgba(2, 175, 177, 0.1);
 }
 
 .processing-header {
@@ -294,8 +295,10 @@ main {
 }
 
 .processing-step.completed {
-    background: #f8fff8;
+    background: #f0fff4;
     border-color: #28a745;
+    border-width: 2px;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.1);
 }
 
 .step-icon {
@@ -315,8 +318,9 @@ main {
 }
 
 .step-icon.active {
-    background: var(--primary-color);
+    background: #02AFB1;
     animation: pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(2, 175, 177, 0.5);
 }
 
 .step-icon.completed {
@@ -331,11 +335,13 @@ main {
     font-weight: 600;
     color: #333;
     margin-bottom: 5px;
+    font-size: 1.1rem;
 }
 
 .step-description {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 1rem;
+    color: #5A6A85;
+    font-weight: 500;
 }
 
 .progress-bar {
@@ -349,22 +355,25 @@ main {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    background: linear-gradient(90deg, #02AFB1, #01999B);
     border-radius: 4px;
-    transition: width 0.3s ease;
+    transition: width 0.5s ease;
     width: 0%;
+    box-shadow: 0 2px 8px rgba(2, 175, 177, 0.3);
 }
 
 #status-text {
-    color: var(--text-light);
-    font-size: 1.1rem;
+    color: #02AFB1;
+    font-size: 1.2rem;
     margin-top: 20px;
+    font-weight: 600;
 }
 
 .processing-time {
-    color: var(--text-light);
-    font-size: 0.9rem;
+    color: #5A6A85;
+    font-size: 1rem;
     margin-top: 10px;
+    font-weight: 500;
 }
 
 /* 播放器区域 */
@@ -1235,6 +1244,10 @@ footer {
 
 /* 工具类 */
 .hidden {
+    display: none !important;
+}
+
+.processing-status.hidden {
     display: none !important;
 }
 
