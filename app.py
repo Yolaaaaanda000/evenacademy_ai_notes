@@ -19,17 +19,16 @@ load_dotenv('llm.env')
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # 移除本地代理设置，适配Vercel部署
-# os.environ['https_proxy'] = "http://127.0.0.1:8118"
-# os.environ['http_proxy'] = "http://127.0.0.1:8118"
-# os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
+os.environ['https_proxy'] = "http://127.0.0.1:8118"
+os.environ['http_proxy'] = "http://127.0.0.1:8118"
+os.environ['all_proxy'] = "socks5://127.0.0.1:8119"
 
 app = Flask(__name__)
 
 # 初始化LLM练习处理器
 practice_handler = PracticeLLMHandler(prompt_template_path='prompts/practice_tutor_prompt.md')
 
-# Vercel部署配置
-MAX_FILE_SIZE = 4 * 1024 * 1024  # 4MB限制
+MAX_FILE_SIZE = 50 * 1024 * 1024  
 
 @app.route('/', methods=['GET'])
 def index():

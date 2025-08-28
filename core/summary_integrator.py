@@ -21,7 +21,7 @@ class SummaryIntegrator:
             prompts_dir: Prompt模板文件目录
         """
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
         # 🆕 初始化Prompt管理器
         self.prompt_manager = PromptManager(prompts_dir)
